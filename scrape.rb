@@ -18,6 +18,9 @@ end
 @ifc = []
 @quad = []
 @filmlinc = []
+@angelika = []
+@filmforum = []
+@bam = []
 
 def get_doc(url)
   page = HTTParty.get(url)
@@ -151,6 +154,71 @@ def scrape_filmlinc
   end
 end
 
+# (slow) get movie links from calendar page, go to each page
+def scrape_angelika
+  doc = get_doc('https://www.angelikafilmcenter.com/nyc/showtimes-and-tickets/now-playing')
+
+  links = doc.css("a[href*=\"nyc/film\"]").map { |l|
+    'https://www.angelikafilmcenter.com/' + l['href']
+  }.uniq
+
+  for link in links
+    doc = get_doc(link)
+
+    # title is in the <title> tag
+    title = doc.css("div.page-title h1").first.text
+
+    # get dates
+    dates = doc.css("select.form-select option").map { |c|
+      c['value']
+    }.uniq
+
+    # blurb is in a meta tag
+    blurb = doc.css("meta[name=description]").first["content"].strip!
+
+    film = Film.new
+    film.title = title
+    film.dates = dates
+    film.link = link
+    film.blurb = blurb
+    @angelika.push(film)
+  end
+end
+
+# (super slow) get movie links from calendar page, go to each page
+# lots of movies per week at forum
+def scrape_filmforum
+  doc = get_doc('https://filmforum.org/now_playing')
+
+  links = doc.css("a[href*=\"filmforum.org/film\"]").map { |l|
+    link = l['href']
+    link = link.chomp("#trailer")
+    link
+  }.uniq
+
+  for link in links
+    doc = get_doc(link)
+
+    # title has class main-title
+    title = doc.css("h1.main-title").first.text
+
+    # get dates
+    dates = [doc.css("h1.main-title+div.details p").last.text]
+
+    # blurb is "copy" class
+    blurb = doc.css("div.copy p").first.text
+    # puts blurb
+
+    film = Film.new
+    film.title = title
+    film.dates = dates
+    film.link = link
+    film.blurb = blurb
+    puts film.inspect
+    @filmforum.push(film)
+  end
+end
+
 # scrape_metrograph
 # puts @metrograph.map { |f| f.inspect }
 
@@ -160,8 +228,14 @@ end
 # scrape_quad
 # puts @quad.map { |f| f.inspect }
 
-scrape_filmlinc
-puts @filmlinc.map { |f| f.inspect }
+# scrape_filmlinc
+# puts @filmlinc.map { |f| f.inspect }
+
+# scrape_angelika
+# puts @angelika.map { |f| f.inspect }
+
+scrape_filmforum
+puts @filmforum.map { |f| f.inspect }
 
 =begin
 CSS selectors:

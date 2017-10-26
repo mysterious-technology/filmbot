@@ -4,6 +4,11 @@ require 'httparty'
 require 'json'
 require 'nokogiri'
 
+# TODO
+# replace dumb date parsing with query string parsing
+# create actual date objects
+# emailer
+
 class Film
   attr_accessor :title, :link, :dates, :blurb
 end
@@ -12,10 +17,14 @@ end
 @ifc = []
 @quad = []
 
+def get_doc(url)
+  page = HTTParty.get(url)
+  Nokogiri::HTML(page) { |c| c.noblanks }
+end
+
 # html is pretty clean and easy to query
 def scrape_metrograph
-  page = HTTParty.get('http://metrograph.com/film')
-  doc = Nokogiri::HTML(page) { |c| c.noblanks }
+  doc = get_doc('http://metrograph.com/film')
 
   @metrograph = doc.css('h4.title.narrow a').map { |link|
     # get the date selector element
@@ -38,8 +47,7 @@ end
 
 # html is messy, need to go to each page
 def scrape_ifc
-  page = HTTParty.get('http://www.ifccenter.com')
-  doc = Nokogiri::HTML(page) { |c| c.noblanks }
+  doc = get_doc('http://www.ifccenter.com')
 
   links = doc.css("div.details a[href*=\"ifccenter.com/films\"]").map { |l|
     l['href']
@@ -47,15 +55,12 @@ def scrape_ifc
 
   # navigate to each film page
   for link in links
-    page = HTTParty.get(link)
-    doc = Nokogiri::HTML(page) { |c| c.noblanks }
+    doc = get_doc(link)
 
     # get the title
     title = doc.css("h1.title").text
 
-    # get links with dates
-    # dumb parsing right now, assuming date is the last element
-    # TODO: parse query string
+    # get dates from movietickets links
     # https://www.movietickets.com/pre_purchase.asp?house_id=9598&movie_id=249296&rdate=10-25-2017
     dates = doc.css("ul.schedule-list a[href*=\"movietickets.com/pre_purchase.asp\"]").map { |l|
       link = l['href']
@@ -77,6 +82,39 @@ def scrape_ifc
     film.blurb = twitter_desc
     @ifc.push(film)
   end
+end
+
+def scrape_quad
+  doc = get_doc('https://quadcinema.com')
+
+  links = doc.css("a[href*=\"quadcinema.com/film\"]").map { |l|
+    l['href']
+  }.uniq
+
+  for link in links
+    doc = get_doc(link)
+
+    # get the title
+    title = doc.css("h1.film-title").first.text
+
+    # get dates from fandango links
+    # http://www.fandango.com/quadcinema_aaefp/theaterpage?date=2017-10-31
+    dates = doc.css("a[href*=\"fandango.com/quadcinema\"]").map { |l|
+      link = l['href']
+      link.split('=').last
+    }.uniq
+
+    # blurb is the first p in the synopsis div
+    blurb = doc.css("div[class*=\"synopsis\"] p").first.text
+
+    film = Film.new
+    film.title = title
+    film.dates = dates
+    film.link = link
+    film.blurb = blurb
+    @quad.push(film)
+  end
+
 end
 
 # scrape_metrograph

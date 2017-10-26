@@ -6,15 +6,21 @@
 
 <body>
 <% theaters.each do |theater| %>
-<strong><a href=<%= theater.link %>><%= theater.name %></a></strong>
-<br>
+<h2>☛ <%= theater.name %></h2>
 
-<% theater.films.each do |film| %>
-  <strong><a href=<%= film.link %>><%= film.title %></a></strong>
-  <br>
-  <%= film.blurb %>
-  <br>
+<table width="100%">
+<% theater.films_this_week.each do |row| %>
+  <tr>
+  <% row.each do |film| %>
+    <td width="50%" valign="top">
+    <h3>★ <a href=<%= film.link %>><%= film.title %></a></h3>
+    <pre><%= film.week_overview %></pre>
+    <p><%= film.blurb %></p>
+    </td>
+  <% end %>
+  </tr>
 <% end %>
+</table>
 
 <% end %>
 </body>

@@ -3,6 +3,7 @@
 require 'httparty'
 require 'json'
 require 'nokogiri'
+require 'date'
 
 class Film
   attr_accessor :title, :link, :dates, :blurb
@@ -25,6 +26,7 @@ general sibling selector (~)
 
 # TODO
 # replace dumb date parsing with query string parsing
+# link finder should trim anchors and dedupe http/https
 # create actual date objects
 # emailer
 # optimize: parallel gets
@@ -36,7 +38,15 @@ class Scraper
   end
   private :get_doc
 
-  # (fast) everything on one page :)
+  # removes all whitespace and non-ascii characters
+  def sanitize(string)
+    string = string.gsub(/[\u0080-\u00ff]/, "")
+    string = string.gsub(/\s+/, "")
+    string
+  end
+  private :sanitize
+
+  # (fast, 1.2s) everything on one page
   def metrograph
     doc = get_doc('http://metrograph.com/film')
 
@@ -62,7 +72,7 @@ class Scraper
     films
   end
 
-  # (slow) get movie links, go to each page
+  # (slow, 12s) get movie links, go to each page
   def ifc
     doc = get_doc('http://www.ifccenter.com')
 
@@ -71,19 +81,20 @@ class Scraper
     }.uniq
 
     films = []
-    for link in links
+    links.each do |link|
       doc = get_doc(link)
 
       # get the title
       title = doc.css("h1.title").text
 
       # get dates from movietickets links
+      # format: MM-DD-YYYY
       # https://www.movietickets.com/pre_purchase.asp?house_id=9598&movie_id=249296&rdate=10-25-2017
       dates = doc.css("ul.schedule-list a[href*=\"movietickets.com/pre_purchase.asp\"]").map { |l|
         link = l['href']
         link.split('=').last
       }.uniq.map { |s|
-        Date.strptime(s, "%Y-%m-%d")
+        Date.strptime(s, "%m-%d-%Y")
       }
 
       if dates.length == 0
@@ -104,7 +115,7 @@ class Scraper
     films
   end
 
-  # (slow) get movie links, go to each page
+  # (slow, 7s) get movie links, go to each page
   def quad
     doc = get_doc('https://quadcinema.com')
 
@@ -113,7 +124,7 @@ class Scraper
     }.uniq
 
     films = []
-    for link in links
+    links.each do |link|
       doc = get_doc(link)
 
       # get the title
@@ -141,7 +152,43 @@ class Scraper
     films
   end
 
-  # (slow) get movie links from calendar page, go to each page
+  # (slow, 6.8s) get movie links from calendar page, go to each page
+  def angelika
+    doc = get_doc('https://www.angelikafilmcenter.com/nyc/showtimes-and-tickets/now-playing')
+
+    links = doc.css("a[href*=\"nyc/film\"]").map { |l|
+      'https://www.angelikafilmcenter.com/' + l['href']
+    }.uniq
+
+    films = []
+    links.each do |link|
+      doc = get_doc(link)
+
+      # title is in the <title> tag
+      title = doc.css("div.page-title h1").first.text
+
+      # get dates, format: YYYY-MM-DD
+      dates = doc.css("select.form-select option").map { |c|
+        c['value']
+      }.uniq.map { |s|
+        Date.strptime(s, "%Y-%m-%d")
+      }
+
+      # blurb is in a meta tag
+      meta_el = doc.css("meta[name=description]").first
+      blurb = meta_el["content"].strip
+
+      film = Film.new
+      film.title = title
+      film.dates = dates
+      film.link = link
+      film.blurb = blurb
+      films.push(film)
+    end
+    films
+  end
+
+  # (slow, 1.9s) get movie links from calendar page, go to each page
   def filmlinc
     doc = get_doc('https://www.filmlinc.org/calendar/')
 
@@ -150,7 +197,7 @@ class Scraper
     }.uniq
 
     films = []
-    for link in links
+    links.each do |link|
       doc = get_doc(link)
 
       # title is in the <title> tag
@@ -177,55 +224,23 @@ class Scraper
     films
   end
 
-  # (slow) get movie links from calendar page, go to each page
-  def angelika
-    doc = get_doc('https://www.angelikafilmcenter.com/nyc/showtimes-and-tickets/now-playing')
-
-    links = doc.css("a[href*=\"nyc/film\"]").map { |l|
-      'https://www.angelikafilmcenter.com/' + l['href']
-    }.uniq
-
-    films = []
-    for link in links
-      doc = get_doc(link)
-
-      # title is in the <title> tag
-      title = doc.css("div.page-title h1").first.text
-
-      # get dates, format: YYYY-MM-DD
-      dates = doc.css("select.form-select option").map { |c|
-        c['value']
-      }.uniq.map { |s|
-        Date.strptime(s, "%Y-%m-%d")
-      }
-
-      # blurb is in a meta tag
-      blurb = doc.css("meta[name=description]").first["content"].strip!
-
-      film = Film.new
-      film.title = title
-      film.dates = dates
-      film.link = link
-      film.blurb = blurb
-      films.push(film)
-    end
-    films
-  end
-
   # (super slow) get movie links from calendar page, go to each page
   # lots of movies per week at forum
+  # currently way too slow (~2min), need to parallelize
+  # leaving out for now
   def filmforum
     doc = get_doc('https://filmforum.org/now_playing')
 
     links = doc.css("a[href*=\"filmforum.org/film\"]").map { |l|
       link = l['href']
+      # dedupe
       link = link.chomp("#trailer")
+      link = link.gsub("https", "http")
       link
     }.uniq
 
     films = []
-    # for link in links
-    link = links.first
+    for link in links
       doc = get_doc(link)
 
       # title has class main-title
@@ -236,23 +251,75 @@ class Scraper
       # "Tuesday, October 31"
       # "Wednesday, November 1 - Tuesday, November 14"
       # "HELD OVER! MUST END THURSDAY!"
-      raw_date = doc.css("h1.main-title+div.details p").last.text
-      dates = raw_date.split('-').map { |s|
-        s.strip!
-        format1 = "%A, %B %d"
-        format2 = "HELD OVER! MUST END %A!"
-        if Date._strptime(s, format1)
-          return Date.strptime(s, format1)
-        elsif Date._strptime(s, format2)
-          return Date.strptime(s, format2)
-        else
-          return nil
-        end
-      }.reject! { |d|
-        d.nil? || d.empty?
+      possible_dates = doc.css("h1.main-title+div.details p").map { |e|
+        e.text
       }
+      raw_dates = possible_dates.map { |s|
+        s = sanitize(s).split('-')
+      }.flatten
 
-      puts dates
+      # this is messy
+      is_range = false
+      is_opening = false
+      is_closing = false
+      dates = []
+      raw_dates.each do |s|
+        range_formats = [
+          "%A,%B%d"
+        ]
+        range_formats.each do |f|
+          if Date._strptime(s, f)
+            dates.push(Date.strptime(s, f))
+            is_range = true
+            next
+          end
+        end
+        opening_formats = [
+          "Opens%A,%B%d",
+        ]
+        opening_formats.each do |f|
+          if Date._strptime(s, f)
+            dates.push(Date.strptime(s, f))
+            is_opening = true
+          end
+        end
+        closing_formats = [
+          "HELDOVER!MUSTEND%A!",
+          "MUSTEND%A!",
+        ]
+        closing_formats.each do |f|
+          if Date._strptime(s, f)
+            dates.push(Date.strptime(s, f))
+            is_closing = true
+          end
+        end
+      end
+
+      # fill in intermediate dates
+      new_dates = []
+      # if closing, fill in dates from today
+      if is_closing
+        date = Date.today
+        last_date = dates.first
+        while date <= last_date
+          new_dates.push(date)
+          date += 1
+        end
+      # if range, fill in dates in-between
+      elsif is_range
+        date = dates.first
+        while date <= dates.last
+          new_dates.push(date)
+          date += 1
+        end
+      # if opening, there should only be one date
+      elsif is_opening && dates.length == 1
+        new_dates = dates
+      # date parsing error
+      else
+        puts "Error parsing date"
+      end
+      dates = new_dates
 
       # get blurb
       blurb = doc.css("div.copy p").first.text
@@ -263,7 +330,7 @@ class Scraper
       film.link = link
       film.blurb = blurb
       films.push(film)
-    # end
+    end
     films
   end
 

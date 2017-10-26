@@ -8,6 +8,7 @@ require 'nokogiri'
 # replace dumb date parsing with query string parsing
 # create actual date objects
 # emailer
+# optimize: parallel gets
 
 class Film
   attr_accessor :title, :link, :dates, :blurb
@@ -16,13 +17,14 @@ end
 @metrograph = []
 @ifc = []
 @quad = []
+@filmlinc = []
 
 def get_doc(url)
   page = HTTParty.get(url)
   Nokogiri::HTML(page) { |c| c.noblanks }
 end
 
-# html is pretty clean and easy to query
+# (fast) everything on one page :)
 def scrape_metrograph
   doc = get_doc('http://metrograph.com/film')
 
@@ -34,18 +36,18 @@ def scrape_metrograph
       e['value'].split('/').last
     }
     # get the summary
-    summary_el = doc.css("a[href=\"#{link['href']}\"]~div.text div.summary")
+    blurb = doc.css("a[href=\"#{link['href']}\"]~div.text div.summary").text.strip!
 
     film = Film.new
     film.title = link.text
     film.link = link['href']
     film.dates = dates
-    film.blurb = summary_el.text.strip!
+    film.blurb = blurb
     film
   }
 end
 
-# html is messy, need to go to each page
+# (slow) get movie links, go to each page
 def scrape_ifc
   doc = get_doc('http://www.ifccenter.com')
 
@@ -84,6 +86,7 @@ def scrape_ifc
   end
 end
 
+# (slow) get movie links, go to each page
 def scrape_quad
   doc = get_doc('https://quadcinema.com')
 
@@ -114,7 +117,38 @@ def scrape_quad
     film.blurb = blurb
     @quad.push(film)
   end
+end
 
+# (slow) get movie links from calendar page, go to each page
+def scrape_filmlinc
+  doc = get_doc('https://www.filmlinc.org/calendar/')
+
+  links = doc.css("a[href*=\"filmlinc.org/films\"]").map { |l|
+    l['href']
+  }.uniq
+
+  for link in links
+    doc = get_doc(link)
+
+    # title is in the <title> tag
+    title = doc.css("title").first.text
+
+    # get dates (h4 in showtimes div)
+    # Thursday, October 26 format
+    dates = doc.css("div.day-showtimes h4").map { |e|
+      e.text
+    }.uniq
+
+    # blurb is the first p in the synopsis div
+    blurb = doc.css("div.post-content").first.text.strip!
+
+    film = Film.new
+    film.title = title
+    film.dates = dates
+    film.link = link
+    film.blurb = blurb
+    @filmlinc.push(film)
+  end
 end
 
 # scrape_metrograph
@@ -123,8 +157,11 @@ end
 # scrape_ifc
 # puts @ifc.map { |f| f.inspect }
 
-scrape_quad
-puts @quad.map { |f| f.inspect }
+# scrape_quad
+# puts @quad.map { |f| f.inspect }
+
+scrape_filmlinc
+puts @filmlinc.map { |f| f.inspect }
 
 =begin
 CSS selectors:

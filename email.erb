@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width" />
+</head>
+
+<body>
+<% theaters.each do |theater| %>
+<strong><a href=<%= theater.link %>><%= theater.name %></a></strong>
+<br>
+
+<% theater.films.each do |film| %>
+  <strong><a href=<%= film.link %>><%= film.title %></a></strong>
+  <br>
+  <%= film.blurb %>
+  <br>
+<% end %>
+
+<% end %>
+</body>
+</html>

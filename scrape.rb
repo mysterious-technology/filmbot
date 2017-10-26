@@ -10,17 +10,13 @@ require 'nokogiri'
 # emailer
 # optimize: parallel gets
 
+class Theater
+  attr_accessor :name, :link, :films
+end
+
 class Film
   attr_accessor :title, :link, :dates, :blurb
 end
-
-@metrograph = []
-@ifc = []
-@quad = []
-@filmlinc = []
-@angelika = []
-@filmforum = []
-@bam = []
 
 def get_doc(url)
   page = HTTParty.get(url)
@@ -31,7 +27,7 @@ end
 def scrape_metrograph
   doc = get_doc('http://metrograph.com/film')
 
-  @metrograph = doc.css('h4.title.narrow a').map { |link|
+  films = doc.css('h4.title.narrow a').map { |link|
     # get the date selector element
     selector = doc.css("a[href=\"#{link['href']}\"]~div.text select.date")
     # get links for first and last date, links end with YYYY-MM-DD
@@ -48,6 +44,7 @@ def scrape_metrograph
     film.blurb = blurb
     film
   }
+  films
 end
 
 # (slow) get movie links, go to each page
@@ -58,7 +55,7 @@ def scrape_ifc
     l['href']
   }.uniq
 
-  # navigate to each film page
+  films = []
   for link in links
     doc = get_doc(link)
 
@@ -85,8 +82,9 @@ def scrape_ifc
     film.link = link
     film.dates = dates
     film.blurb = twitter_desc
-    @ifc.push(film)
+    filmspush(film)
   end
+  films
 end
 
 # (slow) get movie links, go to each page
@@ -97,6 +95,7 @@ def scrape_quad
     l['href']
   }.uniq
 
+  films = []
   for link in links
     doc = get_doc(link)
 
@@ -118,8 +117,9 @@ def scrape_quad
     film.dates = dates
     film.link = link
     film.blurb = blurb
-    @quad.push(film)
+    films.push(film)
   end
+  films
 end
 
 # (slow) get movie links from calendar page, go to each page
@@ -130,6 +130,7 @@ def scrape_filmlinc
     l['href']
   }.uniq
 
+  films = []
   for link in links
     doc = get_doc(link)
 
@@ -150,8 +151,9 @@ def scrape_filmlinc
     film.dates = dates
     film.link = link
     film.blurb = blurb
-    @filmlinc.push(film)
+    films.push(film)
   end
+  films
 end
 
 # (slow) get movie links from calendar page, go to each page
@@ -162,6 +164,7 @@ def scrape_angelika
     'https://www.angelikafilmcenter.com/' + l['href']
   }.uniq
 
+  films = []
   for link in links
     doc = get_doc(link)
 
@@ -181,8 +184,9 @@ def scrape_angelika
     film.dates = dates
     film.link = link
     film.blurb = blurb
-    @angelika.push(film)
+    films.push(film)
   end
+  films
 end
 
 # (super slow) get movie links from calendar page, go to each page
@@ -196,6 +200,7 @@ def scrape_filmforum
     link
   }.uniq
 
+  films = []
   for link in links
     doc = get_doc(link)
 
@@ -214,10 +219,47 @@ def scrape_filmforum
     film.dates = dates
     film.link = link
     film.blurb = blurb
-    puts film.inspect
-    @filmforum.push(film)
+    films.push(film)
   end
+  films
 end
+
+metrograph = Theater.new
+metrograph.name = 'Metrograph'
+metrograph.link = 'http://metrograph.com'
+metrograph.films = scrape_metrograph
+
+ifc = Theater.new
+ifc.name = 'IFC'
+ifc.link = 'http://www.ifccenter.com'
+ifc.films = scrape_ifc
+
+quad = Theater.new
+quad.name = 'Quad'
+quad.link = 'https://quadcinema.com'
+quad.films = scrape_quad
+
+angelika = Theater.new
+angelika.name = 'Angelika'
+angelika.link = 'https://www.angelikafilmcenter.com/nyc'
+angelika.films = scrape_angelika
+
+filmlinc = Theater.new
+filmlinc.name = 'Film Society'
+filmlinc.link = 'https://www.filmlinc.org'
+filmlinc.films = scrape_filmlinc
+
+forum = Theater.new
+forum.name = 'Film Forum'
+forum.link = 'https://filmforum.org'
+forum.films = scrape_filmforum
+
+ # bam
+ # spectacle
+ # village east
+ # lincoln plaza
+ # nitehawk
+ # alam
 
 # scrape_metrograph
 # puts @metrograph.map { |f| f.inspect }

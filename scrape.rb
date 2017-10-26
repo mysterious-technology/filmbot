@@ -3,9 +3,6 @@
 require 'httparty'
 require 'json'
 require 'nokogiri'
-# not using nikkou
-require 'nikkou'
-
 
 class Film
   attr_accessor :title, :link, :dates, :blurb
@@ -13,8 +10,9 @@ end
 
 @metrograph = []
 @ifc = []
+@quad = []
 
-# clean html
+# html is pretty clean and easy to query
 def scrape_metrograph
   page = HTTParty.get('http://metrograph.com/film')
   doc = Nokogiri::HTML(page) { |c| c.noblanks }
@@ -33,30 +31,62 @@ def scrape_metrograph
     film.title = link.text
     film.link = link['href']
     film.dates = dates
-    film.blurb = summary_el.text.strip
+    film.blurb = summary_el.text.strip!
     film
   }
 end
 
-# messy html
+# html is messy, need to go to each page
 def scrape_ifc
   page = HTTParty.get('http://www.ifccenter.com')
   doc = Nokogiri::HTML(page) { |c| c.noblanks }
 
-  @ifc = doc.css("div.details a[href*=\"ifccenter.com/films\"]").map { |link|
+  links = doc.css("div.details a[href*=\"ifccenter.com/films\"]").map { |l|
+    l['href']
+  }.uniq
+
+  # navigate to each film page
+  for link in links
+    page = HTTParty.get(link)
+    doc = Nokogiri::HTML(page) { |c| c.noblanks }
+
+    # get the title
+    title = doc.css("h1.title").text
+
+    # get links with dates
+    # dumb parsing right now, assuming date is the last element
+    # TODO: parse query string
+    # https://www.movietickets.com/pre_purchase.asp?house_id=9598&movie_id=249296&rdate=10-25-2017
+    dates = doc.css("ul.schedule-list a[href*=\"movietickets.com/pre_purchase.asp\"]").map { |l|
+      link = l['href']
+      link.split('=').last
+    }.uniq
+
+    if dates.length == 0
+      # films that are coming soon don't have dates
+      next
+    end
+
+    # get twitter description
+    twitter_desc = doc.css("meta[name=\"twitter:description\"]").first['content']
 
     film = Film.new
-    film.title = link.text
-    film.link = link['href']
-    film
-  }
+    film.title = title
+    film.link = link
+    film.dates = dates
+    film.blurb = twitter_desc
+    @ifc.push(film)
+  end
 end
 
-scrape_metrograph
-puts @metrograph.map { |f| f.inspect }
+# scrape_metrograph
+# puts @metrograph.map { |f| f.inspect }
 
 # scrape_ifc
 # puts @ifc.map { |f| f.inspect }
+
+scrape_quad
+puts @quad.map { |f| f.inspect }
 
 =begin
 CSS selectors:

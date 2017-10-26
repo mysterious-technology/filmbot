@@ -224,6 +224,41 @@ def scrape_filmforum
   films
 end
 
+
+# (slow) get movie links from main page, go to each page
+def scrape_bam
+  doc = get_doc('https://www.bam.org/#Film')
+
+  links = doc.css("a[href*=\"bam.org/film\"]").map { |l|
+    l['href']
+  }.uniq
+  puts links
+  return
+
+  films = []
+  for link in links
+    doc = get_doc(link)
+
+    # title has class main-title
+    title = doc.css("h1.main-title").first.text
+
+    # get dates
+    dates = [doc.css("h1.main-title+div.details p").last.text]
+
+    # blurb is "copy" class
+    blurb = doc.css("div.copy p").first.text
+    # puts blurb
+
+    film = Film.new
+    film.title = title
+    film.dates = dates
+    film.link = link
+    film.blurb = blurb
+    films.push(film)
+  end
+  films
+en
+
 metrograph = Theater.new
 metrograph.name = 'Metrograph'
 metrograph.link = 'http://metrograph.com'
@@ -253,6 +288,11 @@ forum = Theater.new
 forum.name = 'Film Forum'
 forum.link = 'https://filmforum.org'
 forum.films = scrape_filmforum
+
+bam = Theater.new
+bam.name = 'BAM'
+bam.link = 'https://www.bam.org/#Film'
+bam.films = scrape_bam
 
  # bam
  # spectacle

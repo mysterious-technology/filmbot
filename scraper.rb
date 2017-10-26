@@ -15,11 +15,11 @@ class Film
 end
 
 =begin
-bam: uses javascript, hard to scrape
-village east: need to iterate over url to get week of dates
-nitehawk: need to iterate over url to get week of dates
-lincoln plaza: very minimal website
-spectacle: too hipster, hard to scrape
+bam: uses javascript, how do you scrape?
+village east: iterate over url for week
+nitehawk: iterate over url for week
+lincoln plaza: no info to scrape
+spectacle: hard to scrape
 alamo: too mainstream
 
 CSS selectors:
@@ -32,9 +32,8 @@ general sibling selector (~)
 # TODO
 # replace dumb date parsing with query string parsing
 # link finder should trim anchors and dedupe http/https
-# create actual date objects
-# emailer
-# optimize: parallel gets
+# make film forum faster
+# multithreaded requests
 class Scraper
 
   def get_doc(url)

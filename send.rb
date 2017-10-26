@@ -22,13 +22,11 @@ end
 today_string = Date.today.strftime('%b %e %Y')
 subject = "~films this week~ #{today_string}"
 
-emails = [
-  'benzguo@gmail.com'
-]
+emails = ENV['EMAILS'].split(',')
 emails.each do |email|
   mail = Mail.deliver do
     to      email
-    from    'film bot <filmbotnyc@gmail.com>'
+    from    'film bot'
     subject subject
 
     html_part do
@@ -40,9 +38,9 @@ end
 
 # TODO: use mailgun
 # mg_client = Mailgun::Client.new(ENV['MAILGUN_API_KEY'])
-# message_params =  { from: 'benzguo@gmail.com',
-#                     to:   'benguo@gmail.com',
-#                     subject: 'filmbot',
+# message_params =  { from: 'filmbotnyc@gmail.com',
+#                     to:   email,
+#                     subject: subject,
 #                     body_html: result,
 #                   }
 # mg_client.send_message('http://othernet.com', message_params

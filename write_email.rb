@@ -45,46 +45,59 @@ class Film
 end
 
 scraper = Scraper.new
+total_time = 0
 
 metrograph = Theater.new
 metrograph.name = 'Metrograph'
 metrograph.link = 'http://metrograph.com'
 puts "scraping #{metrograph.name}"
-puts Benchmark.realtime {
+time = Benchmark.realtime {
   metrograph.films = scraper.metrograph
 }
+puts "#{'%.2f' % time}s"
+total_time += time
 
 ifc = Theater.new
 ifc.name = 'IFC'
 ifc.link = 'http://www.ifccenter.com'
 puts "scraping #{ifc.name}"
-puts Benchmark.realtime {
+time = Benchmark.realtime {
   ifc.films = scraper.ifc
 }
+puts "#{'%.2f' % time}s"
+total_time += time
 
 quad = Theater.new
 quad.name = 'Quad Cinema'
 quad.link = 'https://quadcinema.com'
 puts "scraping #{quad.name}"
-puts Benchmark.realtime {
+time = Benchmark.realtime {
   quad.films = scraper.quad
 }
+puts "#{'%.2f' % time}s"
+total_time += time
 
 angelika = Theater.new
 angelika.name = 'Angelika'
 angelika.link = 'https://www.angelikafilmcenter.com/nyc'
 puts "scraping #{angelika.name}"
-puts Benchmark.realtime {
+time = Benchmark.realtime {
   angelika.films = scraper.angelika
 }
+puts "#{'%.2f' % time}s"
+total_time += time
 
 filmlinc = Theater.new
 filmlinc.name = 'Film Society'
 filmlinc.link = 'https://www.filmlinc.org'
 puts "scraping #{filmlinc.name}"
-puts Benchmark.realtime {
+time = Benchmark.realtime {
   filmlinc.films = scraper.filmlinc
 }
+puts "#{'%.2f' % time}s"
+total_time += time
+
+puts "total: #{'%.2f' % total_time}s"
 
 # film forum is too slow (~2min)
 # leave out for now
@@ -110,3 +123,5 @@ theaters = [
 template = File.read('email.erb')
 result = ERB.new(template).result
 File.write('email.html', result)
+
+`open email.html`

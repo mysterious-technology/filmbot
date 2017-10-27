@@ -4,6 +4,7 @@ GEM
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     dotenv (2.2.1)
+    excon (0.59.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     httparty (0.15.6)
@@ -11,6 +12,9 @@ GEM
     json (2.1.0)
     mail (2.6.6)
       mime-types (>= 1.16, < 4)
+    mailchimp-api (2.0.6)
+      excon (>= 0.16.0)
+      json (>= 1.7.7)
     mailgun-ruby (1.1.8)
       rest-client (~> 2.0)
     mime-types (3.1)
@@ -36,7 +40,8 @@ DEPENDENCIES
   dotenv (~> 2.2.1)
   httparty (~> 0.15.6)
   json (~> 2.1.0)
-  mail
+  mail (~> 2.6.6)
+  mailchimp-api (~> 2.0.4)
   mailgun-ruby (~> 1.1.6)
   nokogiri (~> 1.6.3.1)
 

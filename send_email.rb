@@ -2,45 +2,38 @@
 
 require 'date'
 require 'dotenv'
-require 'mailgun-ruby'
-require 'mail'
+require 'mailchimp'
 
 Dotenv.load
 
-options = { :address              => "smtp.gmail.com",
-            :port                 => 587,
-            :domain               => 'gmail.com',
-            :user_name            => 'filmbotnyc@gmail.com',
-            :password             => ENV['GOOGLE_PW'],
-            :authentication       => 'plain',
-            :enable_starttls_auto => true,
-          }
-Mail.defaults do
-  delivery_method :smtp, options
-end
+mailchimp = Mailchimp::API.new(ENV['MAILCHIMP_API_KEY'])
 
 today_string = Date.today.strftime('%b %e %Y')
+timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 subject = "~films this week~ #{today_string}"
+# template_name = "filmbot nyc #{timestamp}"
+html = File.read('email.html')
 
-emails = ENV['EMAILS'].split(',')
-emails.each do |email|
-  mail = Mail.deliver do
-    to      email
-    from    'film bot'
-    subject subject
+# response = mailchimp.templates.add(template_name, html)
+# template_id = response["template_id"]
+list_id = "7f90498afb"
+from_email = "filmbotnyc@gmail.com"
+from_name = "filmbot"
+to_name = "*|FNAME|*"
 
-    html_part do
-      content_type 'text/html; charset=UTF-8'
-      body File.read('email.html')
-    end
-  end
-end
+opts = {
+  list_id: list_id,
+  subject: subject,
+  from_email: from_email,
+  from_name: from_name,
+  to_name: to_name,
+  auto_footer: false,
+  generate_text: true,
+}
+content = {
+  html: html
+}
 
-# TODO: use mailgun
-# mg_client = Mailgun::Client.new(ENV['MAILGUN_API_KEY'])
-# message_params =  { from: 'filmbotnyc@gmail.com',
-#                     to:   email,
-#                     subject: subject,
-#                     body_html: result,
-#                   }
-# mg_client.send_message('http://othernet.com', message_params
+response = mailchimp.campaigns.create("regular", opts, content)
+campaign_id = response["id"]
+mailchimp.campaigns.send(campaign_id)

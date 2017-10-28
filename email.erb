@@ -5,8 +5,12 @@
 </head>
 
 <body>
-<p>~ <a href="http://eepurl.com/c9bF5n">i am filmbot</a> ~</p>
+<p>
+  ~ <a href="http://filmbot.nyc">http://filmbot.nyc</a> ~
+</p>
+
 <% theaters.each do |theater| %>
+
 <h2>☛ <%= theater.name %></h2>
 
 <table width="100%">
@@ -14,9 +18,13 @@
   <tr>
   <% row.each do |film| %>
     <td width="50%" valign="top">
-    <h3>★ <a href=<%= film.link %>><%= film.title %></a></h3>
+    <h3>
+      ★ <a href=<%= film.link %>><%= film.title %></a>
+    </h3>
     <pre><%= film.week_overview %></pre>
-    <p><%= film.blurb %></p>
+    <p>
+      <%= film.blurb %>
+    </p>
     </td>
   <% end %>
   </tr>
@@ -24,11 +32,12 @@
 </table>
 
 <% end %>
-<h4>
-  ~ <a href="mailto:filmbotnyc@gmail.com?Subject=secret">tell me a secret</a> ~
-</h4>
+
 <p>
+  <a href="mailto:filmbotnyc@gmail.com?Subject=secret">
   <img src="https://raw.githubusercontent.com/benzguo/filmscraper/master/2046-secret.jpg" width="320px">
+  </a>
 </p>
+
 </body>
 </html>

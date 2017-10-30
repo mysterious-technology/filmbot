@@ -69,7 +69,7 @@ theater.name = 'Film Society'
 theater.link = 'https://www.filmlinc.org'
 print_header(theater)
 time = Benchmark.realtime {
-  theater.films = scraper.filmlinc
+  theater.films = scraper.filmsociety
 }
 theaters.push(theater)
 print_stats(time, theater)

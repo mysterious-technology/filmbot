@@ -8,12 +8,11 @@ scraper = Scraper.new
 
 films = []
 time = Benchmark.realtime {
-  films = scraper.ifc
+  films = scraper.filmforum
 }
 puts "avg:   #{'%.2f' % (time/films.length)}s"
 puts "total: #{'%.2f' % time}s"
 
 theater = Theater.new
-theater.films = films
-columbus = theater.films_this_week[0][1]
-puts columbus.week_overview
+theater.films = theater.dedupe(films)
+puts theater.films_this_week.inspect

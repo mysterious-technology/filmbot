@@ -7,6 +7,15 @@ require 'date'
 require 'cgi'
 require 'titleize'
 
+class String
+  # removes all whitespace and non-ascii characters
+  # use when parsing dates with spaces
+  def remove_whitespace
+    gsub(/[\u0080-\u00ff]/, "")
+    gsub(/\s+/, "")
+  end
+end
+
 class Film
   attr_accessor :title, :link, :dates, :blurb
 
@@ -40,15 +49,6 @@ class Scraper
     Nokogiri::HTML(page) { |c| c.noblanks }
   end
   private :get_doc
-
-  # removes all whitespace and non-ascii characters
-  # important for parsing dates with spaces
-  def sanitize(string)
-    string = string.gsub(/[\u0080-\u00ff]/, "")
-    string = string.gsub(/\s+/, "")
-    string
-  end
-  private :sanitize
 
   # scrapes unique links matching the pattern, stripping anchors
   # base_url will be prefixed to links if given
@@ -248,7 +248,7 @@ class Scraper
   end
 
   # (slow, 1.9s) get movie links from calendar page, go to each page
-  def filmlinc
+  def filmsociety
     doc = get_doc('https://www.filmlinc.org/calendar/')
 
     links = scrape_film_links(doc, "filmlinc.org/films")
@@ -263,12 +263,12 @@ class Scraper
       title = doc.css("title").first.text.titleize
 
       # get dates
-      dates = doc.css("div.day-showtimes h4").map { |e|
+      date_strings = doc.css("div.day-showtimes h4").map { |e|
         e.text
-      }.uniq.map { |s|
+      }
+      dates = date_strings.uniq.map { |s|
         # format: Thursday, October 26
-        sanitized = sanitize(s)
-        Date.strptime(sanitized, "%A,%B%d")
+        Date.strptime(s.remove_whitespace, "%A,%B%d")
       }
       if dates.length == 0
         puts "⚠️ no dates found"
@@ -318,7 +318,7 @@ class Scraper
 
       # sanitize dates and split if hyphenated
       raw_dates = possible_dates.map { |s|
-        s = sanitize(s).split('-')
+        s = s.remove_whitespace.split('-')
       }.flatten
 
       # depending on number of dates and format, determine if datestring is:

@@ -4,12 +4,26 @@ require_relative 'scraper'
 
 class Theater
   attr_accessor :name, :link, :films
-  def films
-    @films || []
+
+  # dedupe films
+  def dedupe(films)
+    deduped = []
+    films.each do |film|
+      matching = deduped.select { |f|
+        f.title == film.title
+      }
+      if matching.length > 0
+        match = matching.first
+        match.dates = (match.dates + film.dates).uniq
+      else
+        deduped.push(film)
+      end
+    end
+    deduped
   end
 
   def films_this_week
-    films.select { |f|
+    @films.select { |f|
       f.week_overview
     }.sort_by { |f| # alphabetize
       f.title

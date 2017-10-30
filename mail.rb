@@ -38,6 +38,9 @@ content = {
 
 response = mailchimp.campaigns.create("regular", opts, content)
 campaign_id = response["id"]
+
+# TODO: open campaign URL
+
 mailchimp.campaigns.send(campaign_id)
 
 puts "~ sent ~"

@@ -195,7 +195,11 @@ class Scraper
       dates = scrape_showtime_links(doc, "fandango.com/quadcinema")
 
       # get blurb
-      blurb = doc.css("div[class*=\"synopsis\"] p").first.text
+      blurb = ""
+      synopsis_el = doc.css("div[class*=\"synopsis\"] p").first
+      if !synopsis_el.nil?
+        blurb = synopsis_el.text
+      end
 
       film = Film.new
       film.title = title

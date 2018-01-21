@@ -3,10 +3,22 @@
 <head>
 <meta name="viewport" content="width=device-width" />
 </head>
+<style>
+p {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 0em;
+    margin-left: 0em;
+    margin-right: 2em;
+}
+</style>
 
 <body>
 <p>
-  ~ <a href="http://filmbot.nyc">http://filmbot.nyc</a> ~
+<a href="http://filmbot.nyc">http://filmbot.nyc</a>
+</p>
+<p>
+<%= today_string %>
 </p>
 
 <% theaters.each do |theater| %>
@@ -37,6 +49,9 @@
   <a href="mailto:filmbotnyc@gmail.com?Subject=secret">
   <img src="https://raw.githubusercontent.com/benzguo/filmscraper/master/2046-secret.jpg" width="320px">
   </a>
+</p>
+<p>
+  <%= timestamp %>
 </p>
 
 </body>

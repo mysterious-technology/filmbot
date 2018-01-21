@@ -89,6 +89,8 @@ puts "scraped #{theaters.length} theaters in #{'%.2f' % @total_time}s"
 puts "avg: #{'%.2f' % (@total_time/theaters.length)}s"
 
 puts "~ writing email ~"
+today_string = Date.today.strftime('%b %e, %Y')
+timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 template = File.read('email.erb')
 result = ERB.new(template).result
 File.write('email.html', result)

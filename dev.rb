@@ -13,6 +13,4 @@ time = Benchmark.realtime {
 puts "avg:   #{'%.2f' % (time/films.length)}s"
 puts "total: #{'%.2f' % time}s"
 
-theater = Theater.new
-theater.films = theater.dedupe(films)
-puts theater.films_this_week.inspect
+puts Theater.films_this_week(films)

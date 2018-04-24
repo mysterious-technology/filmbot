@@ -24,9 +24,7 @@ theaters = []
 
 puts "~ i am filmbot ~"
 
-theater = Theater.new
-theater.name = 'Metrograph'
-theater.link = 'http://metrograph.com'
+theater = Theater.new('Metrograph', 'http://metrograph.com')
 print_header(theater)
 time = Benchmark.realtime {
   theater.films = scraper.metrograph
@@ -34,9 +32,7 @@ time = Benchmark.realtime {
 theaters.push(theater)
 print_stats(time, theater)
 
-theater = Theater.new
-theater.name = 'IFC'
-theater.link = 'http://www.ifccenter.com'
+theater = Theater.new('IFC', 'http://www.ifccenter.com')
 print_header(theater)
 time = Benchmark.realtime {
   theater.films = scraper.ifc
@@ -44,9 +40,7 @@ time = Benchmark.realtime {
 theaters.push(theater)
 print_stats(time, theater)
 
-theater = Theater.new
-theater.name = 'Quad Cinema'
-theater.link = 'https://quadcinema.com'
+theater = Theater.new('Quad Cinema', 'https://quadcinema.com')
 print_header(theater)
 time = Benchmark.realtime {
   theater.films = scraper.quad
@@ -54,9 +48,7 @@ time = Benchmark.realtime {
 theaters.push(theater)
 print_stats(time, theater)
 
-theater = Theater.new
-theater.name = 'Angelika'
-theater.link = 'https://www.angelikafilmcenter.com/nyc'
+theater = Theater.new('Angelika', 'https://www.angelikafilmcenter.com/nyc')
 print_header(theater)
 time = Benchmark.realtime {
   theater.films = scraper.angelika
@@ -64,9 +56,7 @@ time = Benchmark.realtime {
 theaters.push(theater)
 print_stats(time, theater)
 
-theater = Theater.new
-theater.name = 'Film Society'
-theater.link = 'https://www.filmlinc.org'
+theater = Theater.new('Film Society', 'https://www.filmlinc.org')
 print_header(theater)
 time = Benchmark.realtime {
   theater.films = scraper.filmsociety
@@ -74,9 +64,7 @@ time = Benchmark.realtime {
 theaters.push(theater)
 print_stats(time, theater)
 
-theater = Theater.new
-theater.name = 'Film Forum'
-theater.link = 'https://filmforum.org'
+theater = Theater.new('Film Forum', 'https://filmforum.org')
 print_header(theater)
 time = Benchmark.realtime {
   theater.films = scraper.filmforum

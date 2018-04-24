@@ -5,8 +5,13 @@ require_relative 'scraper'
 class Theater
   attr_accessor :name, :link, :films
 
+  def initialize(name, link)
+    @name = name
+    @link = link
+  end
+
   # dedupe films
-  def dedupe(films)
+  def self.dedupe(films)
     deduped = []
     films.each do |film|
       matching = deduped.select { |f|
@@ -23,7 +28,11 @@ class Theater
   end
 
   def films_this_week
-    @films.select { |f|
+    Theater.films_this_week(@films)
+  end
+
+  def self.films_this_week(films)
+    dedupe(films).select { |f|
       f.week_overview
     }.sort_by { |f| # alphabetize
       f.title
@@ -31,7 +40,11 @@ class Theater
   end
 
   def films_this_or_next_week
-    @films.select { |f|
+    Theater.films_this_or_next_week(@films)
+  end
+
+  def self.films_this_or_next_week(films)
+    films.select { |f|
       f.week_overview || f.week2_overview
     }.sort_by { |f| # alphabetize
       f.title

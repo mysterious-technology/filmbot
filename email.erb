@@ -18,12 +18,12 @@
   <%= today_string %>
 </p>
 
-<% theaters.each do |theater| %>
+<% results.each do |scraper, films| %>
 
-  <h2>☛ <%= theater.name %></h2>
+  <h2>☛ <%= scraper.theater_name %></h2>
 
   <table width="100%">
-    <% theater.films_this_week.each do |row| %>
+    <% Scraper::Base.films_this_week(films).each do |row| %>
       <tr>
         <% row.each do |film| %>
           <td width="50%" valign="top">

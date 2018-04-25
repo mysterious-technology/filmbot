@@ -38,6 +38,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
+    slop (4.6.2)
     titleize (1.4.1)
     unf (0.1.4)
       unf_ext
@@ -55,6 +56,7 @@ DEPENDENCIES
   mailgun-ruby (~> 1.1.6)
   nokogiri (~> 1.6.3.1)
   pry-byebug (~> 3.6.0)
+  slop (~> 4.6.2)
   titleize (~> 1.4.1)
 
 RUBY VERSION

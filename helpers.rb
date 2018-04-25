@@ -7,3 +7,9 @@ class String
   end
 end
 
+def load_and_new(files)
+  before = ObjectSpace.each_object(Class).to_a
+  files.each { |file| require file }
+  diff = ObjectSpace.each_object(Class).to_a - before
+  diff.map { |klass| klass.new }
+end

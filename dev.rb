@@ -2,7 +2,7 @@
 
 require 'pry'
 require 'benchmark'
-require_relative 'scraper/film_forum'
+require_relative 'scraper/nyc/film_forum'
 
 scraper = Scraper::FilmForum.new
 

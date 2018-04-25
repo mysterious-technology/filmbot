@@ -23,27 +23,30 @@ adjacent sibling selector (+)
 general sibling selector (~)
 =end
 
+DATE_FORMATS = %w(%Y-%m-%d %m-%d-%Y).freeze
+
 module Scraper
   class Base
-    DATE_FORMATS = %w(%Y-%m-%d %m-%d-%Y).freeze
+    attr_accessor :url, :theater_name
 
     def initialize(url)
       @url = url
-      @theater_name = (self.class.name.split('::').last || '').gsub('_', ' ').titleize
+      class_name = self.class.name.split('::').last || ''
+      @theater_name = class_name.gsub(/[A-Z]/, ' \0').titleize
     end
 
-    def doc
+    public def doc
       @doc = @doc || get_doc(@url)
     end
 
-    def get_doc(url)
+    public def get_doc(url)
       raise 'no url' unless @url && @url.length > 0
       Nokogiri::HTML(HTTParty.get(url)) { |c| c.noblanks }
     end
 
     # scrapes unique links matching the pattern, stripping anchors
     # base_url will be prefixed to links if given
-    def scrape_film_links(doc, matching, base_url = nil)
+    public def scrape_film_links(doc, matching, base_url = nil)
       links = doc.css(" a[href*=\"#{matching}\"]").map { |element|
         link = element["href"].split("#").first.gsub("https", "http").chomp("/")
         if base_url
@@ -58,7 +61,7 @@ module Scraper
     end
 
     # scrapes showtime links, returning an array of dates
-    def scrape_showtime_links(doc, matching, container = nil)
+    public def scrape_showtime_links(doc, matching, container = nil)
       selector = "a[href*=\"#{matching}\"]"
       selector = "#{container} #{selector}" if container
       dates = doc.css(selector).map { |l|
@@ -81,11 +84,26 @@ module Scraper
       dates
     end
 
-    def scrape
+    public def to_s
+      "[#{@url}]<#{@theater_name}>"
+    end
+
+    public def hash
+      to_s.hash
+    end
+
+    public def ==(o)
+      o.class == self.class && o.hash == hash
+    end
+
+    # abstract
+    public def scrape
       raise 'unimplemented'
     end
 
-    def self.dedupe(films)
+    alias_method :eql?, :==
+
+    public def self.dedupe(films)
       deduped = []
       films.each { |film|
         matching = deduped.select { |f| f.title.downcase == film.title.downcase }
@@ -99,8 +117,7 @@ module Scraper
       deduped
     end
 
-    def self.films_this_week(films)
-      binding.pry
+    public def self.films_this_week(films)
       dedupe(films)
         .select { |f| f.week_overview }
         .sort_by { |f| f.title }

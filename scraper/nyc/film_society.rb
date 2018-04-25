@@ -29,7 +29,7 @@ module Scraper
         # get blurb
         blurb = child_doc.css("div.post-content").first.text.strip!
 
-        Film.new(title, dates, link, blurb)
+        Film.new(title, link, dates, blurb)
       }.compact
     end
   end

@@ -33,7 +33,7 @@ module Scraper
         meta_el = doc.css("meta[name=description]").first
         blurb = meta_el["content"].strip
 
-        Film.new(title, dates, link, blurb)
+        Film.new(title, link, dates, blurb)
       end.compact
     end
   end

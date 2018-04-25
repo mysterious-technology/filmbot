@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 
 require 'benchmark'
+require 'pry'
 require 'date'
 require 'slop'
 require_relative 'scraper/base'
@@ -30,16 +31,16 @@ city = opts[:city]
 results = {}
 
 puts "~ i am filmbot ~"
-raise 'No city' unless city
+abort 'feed me a city' unless city
 
-files = Dir.glob("scraper/#{city}/*.rb")
+files = Dir.glob("./scraper/#{city}/*.rb")
 scrapers = load_and_new(files).select { |s| s.is_a? Scraper::Base }
 
-raise "filmbot does not know about #{city}" unless scrapers.count > 0
+abort "filmbot does not know about #{city}" unless scrapers.count > 0
 
 scrapers.each { |scraper|
   print_header(scraper)
-  time = Benchmark.realtime { results[scraper] = scrapers.scrape }
+  time = Benchmark.realtime { results[scraper] = scraper.scrape }
   print_stats(time, results[scraper])
 }
 

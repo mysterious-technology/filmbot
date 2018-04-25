@@ -27,7 +27,7 @@ module Scraper
           blurb = synopsis_el.text
         end
 
-        Film.new(title, dates, link, blurb)
+        Film.new(title, link, dates, blurb)
       end
     end
   end

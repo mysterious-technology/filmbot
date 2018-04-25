@@ -103,7 +103,7 @@ module Scraper
 
     alias_method :eql?, :==
 
-    public def self.dedupe(films)
+    public_class_method def self.dedupe(films)
       deduped = []
       films.each { |film|
         matching = deduped.select { |f| f.title.downcase == film.title.downcase }
@@ -117,7 +117,7 @@ module Scraper
       deduped
     end
 
-    public def self.films_this_week(films)
+    public_class_method def self.films_this_week(films)
       dedupe(films)
         .select { |f| f.week_overview }
         .sort_by { |f| f.title }

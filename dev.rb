@@ -1,16 +1,16 @@
 #! /usr/bin/env ruby
 
+require 'pry'
 require 'benchmark'
-require_relative 'scraper'
-require_relative 'theater'
+require_relative 'scraper/film_forum'
 
-scraper = Scraper.new
+scraper = Scraper::FilmForum.new
 
 films = []
 time = Benchmark.realtime {
-  films = scraper.filmforum
+  films = scraper.scrape
 }
 puts "avg:   #{'%.2f' % (time/films.length)}s"
 puts "total: #{'%.2f' % time}s"
 
-puts Theater.films_this_week(films)
+puts Scraper::Base.films_this_week(films)

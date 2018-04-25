@@ -1,54 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width" />
+  <meta name="viewport" content="width=device-width"/>
 </head>
 <style>
-p {
+  p {
     display: block;
-    margin-top: 1em;
-    margin-bottom: 0em;
-    margin-left: 0em;
-    margin-right: 2em;
-}
+    margin: 1em 2em 0 0;
+  }
 </style>
 
 <body>
 <p>
-<a href="http://filmbot.nyc">http://filmbot.nyc</a>
+  <a href="http://filmbot.nyc">http://filmbot.nyc</a>
 </p>
 <p>
-<%= today_string %>
+  <%= today_string %>
 </p>
 
 <% theaters.each do |theater| %>
 
-<h2>☛ <%= theater.name %></h2>
+  <h2>☛ <%= theater.name %></h2>
 
-<table width="100%">
-<% theater.films_this_week.each do |row| %>
-  <tr>
-  <% row.each do |film| %>
-    <td width="50%" valign="top">
-    <h3>
-      ★ <a href=<%= film.link %>><%= film.title %></a>
-    </h3>
-    <pre><%= film.week_overview_tomorrow %></pre>
-    <p>
-      <%= film.blurb %>
-    </p>
-    </td>
-  <% end %>
-  </tr>
-<% end %>
-</table>
+  <table width="100%">
+    <% theater.films_this_week.each do |row| %>
+      <tr>
+        <% row.each do |film| %>
+          <td width="50%" valign="top">
+            <h3>
+              ★ <a href=<%= film.link %>><%= film.title %></a>
+            </h3>
+            <pre><%= film.week_overview %></pre>
+            <p>
+              <%= film.blurb %>
+            </p>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
 
 <% end %>
 
 <p>
   <a href="mailto:filmbotnyc@gmail.com?Subject=secret">
-  <img src="https://raw.githubusercontent.com/benzguo/filmscraper/master/2046-secret.jpg" width="320px">
-  </a>
+    <img src="https://raw.githubusercontent.com/benzguo/filmscraper/master/2046-secret.jpg" width="320px"> </a>
 </p>
 <p>
   <%= timestamp %>

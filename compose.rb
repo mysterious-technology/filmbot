@@ -7,7 +7,10 @@ require 'slop'
 require_relative 'scraper/base'
 require_relative 'helpers'
 
-opts = Slop.parse { |o| o.string '-c', '--city', 'city to scrape' }
+opts = Slop.parse { |o|
+  o.string '-c', '--city', 'city to scrape'
+  o.integer '-l', '--limit', 'limit to n theaters'
+}
 
 @total_time = 0
 
@@ -28,6 +31,7 @@ end
 ###############################
 
 city = opts[:city]
+limit = opts[:limit]
 results = {}
 
 puts "~ i am filmbot ~"
@@ -35,6 +39,7 @@ abort 'feed me a city' unless city
 
 files = Dir.glob("./scraper/#{city}/*.rb")
 scrapers = load_and_new(files).select { |s| s.is_a? Scraper::Base }
+scrapers = scrapers.take(limit) if limit
 
 abort "filmbot does not know about #{city}" unless scrapers.count > 0
 
@@ -49,7 +54,7 @@ puts "scraped #{results.length} theaters in #{'%.2f' % @total_time}s"
 puts "avg: #{'%.2f' % (@total_time / results.length)}s"
 
 puts "~ writing email ~"
-today_string = Date.today.strftime('%b %e, %Y')
+today_string = Date.today.strftime('%e %b %Y')
 timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 template = File.read('email.erb')
 result = ERB.new(template).result

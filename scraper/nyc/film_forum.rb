@@ -26,14 +26,10 @@ module Scraper
         # "Tuesday, October 31"
         # "Wednesday, November 1 - Tuesday, November 14"
         # "HELD OVER! MUST END THURSDAY!"
-        possible_dates = doc.css("h1.main-title+div.details p").map { |e|
-          e.text
-        }
+        possible_dates = doc.css("h1.main-title+div.details p").map { |e| e.text }
 
         # sanitize dates and split if hyphenated
-        raw_dates = possible_dates.map { |s|
-          s = s.remove_whitespace.split('-')
-        }.flatten
+        raw_dates = possible_dates.map { |s| s.remove_whitespace.split('-') }.flatten
 
         # depending on number of dates and format, determine if datestring is:
         # 1. range of dates

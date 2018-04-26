@@ -4,6 +4,7 @@ require 'nokogiri'
 require 'date'
 require 'cgi'
 require 'titleize'
+require 'opengraph_parser'
 require_relative '../helpers'
 require_relative '../models/film'
 
@@ -119,7 +120,7 @@ module Scraper
 
     public_class_method def self.films_this_week(films)
       dedupe(films)
-        .select { |f| f.week_overview }
+        .select { |f| f.week_overview_tomorrow }
         .sort_by { |f| f.title }
         .each_slice(2)
         .to_a

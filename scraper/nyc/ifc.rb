@@ -12,7 +12,7 @@ module Scraper
       links = scrape_film_links(doc, "ifccenter.com/films")
       links.map do |link|
         puts "scraping #{link}"
-        child_doc = get_doc(link)
+        child_doc = Base.get_doc(link)
         title = child_doc.css("h1.title").text.titleize
         dates = scrape_showtime_links(child_doc, "movietickets.com/pre_purchase", "ul.schedule-list")
         twitter_desc = child_doc.css("meta[name=\"twitter:description\"]").first['content']

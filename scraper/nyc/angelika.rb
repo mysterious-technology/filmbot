@@ -12,7 +12,7 @@ module Scraper
       links = scrape_film_links(doc, "nyc/film", "https://www.angelikafilmcenter.com")
       links.map do |link|
         puts "scraping #{link}"
-        child_doc = get_doc(link)
+        child_doc = Base.get_doc(link)
 
         # get title
         title = child_doc.css("div.page-title h1").first.text.titleize

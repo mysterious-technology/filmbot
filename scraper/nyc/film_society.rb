@@ -11,7 +11,7 @@ module Scraper
     def scrape
       scrape_film_links(doc, "filmlinc.org/films").map { |link|
         puts "scraping #{link}"
-        child_doc = get_doc(link)
+        child_doc = Base.get_doc(link)
         title = child_doc.css("title").first.text.titleize
         date_strings = child_doc.css("div.day-showtimes h4").map { |e|
           e.text

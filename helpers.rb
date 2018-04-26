@@ -13,3 +13,7 @@ def load_and_new(files)
   diff = ObjectSpace.each_object(Class).to_a - before
   diff.map { |klass| klass.new }
 end
+
+def at_link_like(match, doc)
+  doc.at_css("a[href*=\"#{match}\"]")
+end

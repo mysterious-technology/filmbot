@@ -16,7 +16,7 @@ module Scraper
       links.map { |link|
         puts "scraping #{link}"
 
-        doc = get_doc(link)
+        doc = Base.get_doc(link)
 
         # get title
         title = doc.css("h1.main-title").first.text.titleize

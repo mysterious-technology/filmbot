@@ -37,12 +37,7 @@ module Scraper
     end
 
     public def doc
-      @doc = @doc || get_doc(@url)
-    end
-
-    public def get_doc(url)
-      raise 'no url' unless @url && @url.length > 0
-      Nokogiri::HTML(HTTParty.get(url)) { |c| c.noblanks }
+      @doc = @doc || Base.get_doc(@url)
     end
 
     # scrapes unique links matching the pattern, stripping anchors
@@ -124,6 +119,11 @@ module Scraper
         .sort_by { |f| f.title }
         .each_slice(2)
         .to_a
+    end
+
+    public_class_method def self.get_doc(url)
+      raise 'no url' unless url && url.length > 0
+      Nokogiri::HTML(HTTParty.get(url)) { |c| c.noblanks }
     end
   end
 end

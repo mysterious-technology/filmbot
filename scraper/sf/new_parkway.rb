@@ -11,6 +11,7 @@ module Scraper
     end
 
     def scrape
+      memo = {}
       doc.css('div.eventDay').take(9).map { |event_day|
         date_string = event_day.css('span.date h4').text
         next unless Date._strptime(date_string, DATE_FORMAT)
@@ -19,10 +20,9 @@ module Scraper
           purchase_node = event.at_css("a[href*=\"#{TICKET_URL}\"]")
           imdb = event.at_css("a[href*=\"#{IMDB_URL}\"]")
           next unless purchase_node && imdb
-
-          graph = OpenGraph.new(imdb.attributes['href'].value)
+          imdb_url = imdb.attributes['href'].value
+          memo[imdb_url] = memo[imdb_url] || OpenGraph.new(imdb_url)
           link = purchase_node.attributes['href'].value
-
           Film.new(graph.title, link, dates, graph.description)
         }.compact
       }.compact.flatten

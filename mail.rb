@@ -13,6 +13,9 @@ subject = "~films this week~ #{today_string}"
 html = File.read('email.html')
 
 list_id = "a03558b941" # dry run by default
+
+sf_list_id = 'e15df4841b'
+
 if ARGV[0] == "PLEASE"
   puts "~ for real this time ~"
   list_id = "7f90498afb"

@@ -1,95 +1,60 @@
 #! /usr/bin/env ruby
 
 require 'benchmark'
+require 'pry'
 require 'date'
-require_relative 'scraper'
-require_relative 'theater'
+require 'slop'
+require_relative 'scraper/base'
+require_relative 'helpers'
+
+opts = Slop.parse { |o|
+  o.string '-c', '--city', 'city to scrape'
+  o.integer '-l', '--limit', 'limit to n theaters'
+}
 
 @total_time = 0
 
-def print_header(theater)
-  puts "☛ #{theater.name}"
+def print_header(scraper)
+  puts "☛ #{scraper.theater_name}"
 end
 
-def print_stats(time, theater)
+def print_stats(time, films)
   puts "=========================="
-  puts "scraped #{theater.films.length} films in #{'%.2f' % time}s"
-  puts "avg: #{'%.2f' % (time/theater.films.length)}s"
+  puts "scraped #{films.length} films in #{'%.2f' % time}s"
+  puts "avg: #{'%.2f' % (time / films.length)}s"
   puts "=========================="
   @total_time += time
 end
 
-scraper = Scraper.new
-theaters = []
+###############################
+# 🎥 🤖 start filmbot 🎥 🤖
+###############################
+
+city = opts[:city]
+limit = opts[:limit]
+results = {}
 
 puts "~ i am filmbot ~"
+abort 'feed me a city' unless city
 
-theater = Theater.new
-theater.name = 'Metrograph'
-theater.link = 'http://metrograph.com'
-print_header(theater)
-time = Benchmark.realtime {
-  theater.films = scraper.metrograph
-}
-theaters.push(theater)
-print_stats(time, theater)
+files = Dir.glob("./scraper/#{city}/*.rb")
+scrapers = load_and_new(files).select { |s| s.is_a? Scraper::Base }
+scrapers = scrapers.take(limit) if limit
 
-theater = Theater.new
-theater.name = 'IFC'
-theater.link = 'http://www.ifccenter.com'
-print_header(theater)
-time = Benchmark.realtime {
-  theater.films = scraper.ifc
-}
-theaters.push(theater)
-print_stats(time, theater)
+abort "filmbot does not know about #{city}" unless scrapers.count > 0
 
-theater = Theater.new
-theater.name = 'Quad Cinema'
-theater.link = 'https://quadcinema.com'
-print_header(theater)
-time = Benchmark.realtime {
-  theater.films = scraper.quad
+scrapers.each { |scraper|
+  print_header(scraper)
+  time = Benchmark.realtime { results[scraper] = scraper.scrape }
+  print_stats(time, results[scraper])
 }
-theaters.push(theater)
-print_stats(time, theater)
-
-theater = Theater.new
-theater.name = 'Angelika'
-theater.link = 'https://www.angelikafilmcenter.com/nyc'
-print_header(theater)
-time = Benchmark.realtime {
-  theater.films = scraper.angelika
-}
-theaters.push(theater)
-print_stats(time, theater)
-
-theater = Theater.new
-theater.name = 'Film Society'
-theater.link = 'https://www.filmlinc.org'
-print_header(theater)
-time = Benchmark.realtime {
-  theater.films = scraper.filmsociety
-}
-theaters.push(theater)
-print_stats(time, theater)
-
-theater = Theater.new
-theater.name = 'Film Forum'
-theater.link = 'https://filmforum.org'
-print_header(theater)
-time = Benchmark.realtime {
-  theater.films = scraper.filmforum
-}
-theaters.push(theater)
-print_stats(time, theater)
 
 puts "~ done scraping ~"
-puts "scraped #{theaters.length} theaters in #{'%.2f' % @total_time}s"
-puts "avg: #{'%.2f' % (@total_time/theaters.length)}s"
+puts "scraped #{results.length} theaters in #{'%.2f' % @total_time}s"
+puts "avg: #{'%.2f' % (@total_time / results.length)}s"
 
 puts "~ writing email ~"
-today_string = Date.today.strftime('%b %e, %Y')
+today_string = Date.today.strftime('%e %b %Y')
 timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 template = File.read('email.erb')
 result = ERB.new(template).result

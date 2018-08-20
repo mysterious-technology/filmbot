@@ -2,8 +2,38 @@
 require 'date'
 require 'dotenv/load'
 require 'mailchimp'
+require 'slop'
+
+LIST_IDS = {
+  'nyc' => {
+    test: 'a03558b941',
+    real: '7f90498afb'
+  },
+  'sf' => {
+    test: '09e4b7c66b',
+    real: 'e15df4841b'
+  }
+}
+
+opts = Slop.parse { |o|
+  o.string '-c', '--city', 'city to scrape'
+  o.bool '--for-real', 'whether or not it\'s for real', default: false
+}
 
 Dotenv.load
+
+city = opts[:city]
+for_real = opts.for_real?
+
+abort 'i need a city' unless city
+
+puts for_real ? "~ for real this time ~" : "~ dry run ~"
+
+ids_for_city = LIST_IDS[city]
+abort 'no mailchimp ids for that city' unless ids_for_city
+list_id = ids_for_city[for_real ? :real : :test]
+abort 'no mail list' unless list_id
+
 
 mailchimp = Mailchimp::API.new(ENV['MAILCHIMP_API_KEY'])
 
@@ -12,16 +42,6 @@ timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 subject = "~films this week~ #{today_string}"
 html = File.read('email.html')
 
-list_id = "a03558b941" # dry run by default
-
-sf_list_id = 'e15df4841b'
-
-if ARGV[0] == "PLEASE"
-  puts "~ for real this time ~"
-  list_id = "7f90498afb"
-else
-  puts "~ dry run ~"
-end
 from_email = "filmbotnyc@gmail.com"
 from_name = "filmbot"
 to_name = "*|FNAME|*"

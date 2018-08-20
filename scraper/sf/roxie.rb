@@ -2,7 +2,7 @@ require_relative '../base'
 
 module Scraper
   class Roxie < Base
-    BASE_URL = 'http://www.roxie.com'.freeze
+    BASE_URL = 'https://www.roxie.com'.freeze
     DATE_FORMAT = '%A, %B %e'.freeze
     IGNORE_DATE = ['Today, ', 'Tomorrow, ']
 

@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html>
+<% link = city === 'sf' ? 'http://filmbot.club' : 'http://filmbot.nyc' %>
 <head>
   <meta name="viewport" content="width=device-width"/>
 </head>
 <style>
   * {
-    font-family: monospace;
+    font-family: "Source Code Pro", Monaco, monospace;
+  }
+  a {
+    text-decoration: none;
+    color: #0099ff
   }
   p {
     display: block;
@@ -15,7 +20,7 @@
 
 <body>
 <p>
-  <a href="http://filmbot.nyc">http://filmbot.nyc</a>
+  <a href="<%= link %>"><%= link %></a>
 </p>
 <p>
   <%= today_string %>
@@ -25,13 +30,13 @@
 
   <h2>☛ <%= scraper.theater_name %></h2>
 
-  <table width="100%">
+  <table width="100%" style='font-family: "Source Code Pro", Monaco, monospace;'>
     <% Scraper::Base.films_this_week(films).each do |row| %>
       <tr>
         <% row.each do |film| %>
           <td width="50%" valign="top">
             <h3>
-              ★ <a href=<%= film.link %>><%= film.title %></a>
+              ★ <a style="text-underline: none" href=<%= film.link %>><%= film.title %></a>
             </h3>
             <pre><%= film.week_overview_tomorrow %></pre>
             <p>
@@ -44,7 +49,6 @@
   </table>
 
 <% end %>
-
 <p>
   <a href="mailto:filmbotnyc@gmail.com?Subject=secret">
     <img src="https://raw.githubusercontent.com/benzguo/filmscraper/master/2046-secret.jpg" width="320px"> </a>

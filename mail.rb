@@ -3,6 +3,7 @@ require 'date'
 require 'dotenv/load'
 require 'mailchimp'
 require 'slop'
+require 'fileutils'
 
 LIST_IDS = {
   'nyc' => {
@@ -41,6 +42,10 @@ today_string = Date.today.strftime('%b %e %Y')
 timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 subject = "~films this week~ #{today_string}"
 html = File.read('email.html')
+
+if for_real
+  FileUtils.cp_r('email.html', "archive/#{city}/#{timestamp}.html", remove_destination: true)
+end
 
 from_email = "filmbotnyc@gmail.com"
 from_name = "filmbot"

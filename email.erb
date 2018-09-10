@@ -15,6 +15,10 @@
     display: block;
     margin: 1em 2em 0 0;
   }
+
+  strong {
+    font-weight: 900;
+  }
 </style>
 
 <body>
@@ -36,9 +40,7 @@
               ★ <a style="text-underline: none" href=<%= film.link %>><%= film.title %></a>
             </h3>
             <pre style="font-weight: bold"><%= film.week_overview_tomorrow %></pre>
-            <p>
-              <%= film.blurb %>
-            </p>
+            <%= "<p style=\"#{font_style}\">#{film.blurb_html}</p>" %>
           </td>
         <% end %>
       </tr>

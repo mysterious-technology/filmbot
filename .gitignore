@@ -54,3 +54,5 @@ build-iPhoneSimulator/
 
 # Exclude email artifact
 email.html
+
+.idea/

@@ -10,7 +10,7 @@ module Scraper
     # (slow, 7s) get movie links, go to each page
     def scrape
       links = scrape_film_links(doc, "quadcinema.com/film")
-      links.map do |link|
+      res = links.map do |link|
         puts "scraping #{link}"
         child_doc = Base.get_doc(link)
 
@@ -26,9 +26,9 @@ module Scraper
         unless synopsis_el.nil?
           blurb = synopsis_el.text
         end
-
         Film.new(title, link, dates, blurb)
       end
+      res
     end
   end
 end

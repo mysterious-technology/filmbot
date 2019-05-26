@@ -66,15 +66,15 @@ module Scraper
         query_params = CGI::parse(query_string)
         query_params.keys
           .select { |k| k.include?('date') }
-          .each { |key|
+          .map { |key|
             date_string = query_params[key].first
-            DATE_FORMATS.each { |format|
+            DATE_FORMATS.map { |format|
               if Date._strptime(date_string, format)
                 next Date.strptime(date_string, format)
               end
             }
-          }
-      }.uniq
+          }.flatten.compact
+      }.flatten.uniq
 
       puts dates.length == 0 ? "⚠️ no dates found" : "found #{dates.length} showtimes"
       dates

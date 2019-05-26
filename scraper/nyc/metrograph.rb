@@ -4,6 +4,7 @@ module Scraper
   class MetroGraph < Base
     def initialize
       super('http://metrograph.com/film')
+      @theater_name = 'MetroGraph'
     end
 
     # (fast, 1.2s) everything on one page

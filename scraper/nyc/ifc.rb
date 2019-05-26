@@ -8,6 +8,7 @@ module Scraper
 
     def initialize
       super('http://www.ifccenter.com')
+      @theater_name = 'IFC'
     end
 
     # (slow, 12s) get movie links, go to each page

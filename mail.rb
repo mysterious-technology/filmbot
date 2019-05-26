@@ -36,11 +36,21 @@ list_id = ids_for_city[for_real ? :real : :test]
 abort 'no mail list' unless list_id
 
 
-mailchimp = Mailchimp::API.new(ENV['MAILCHIMP_API_KEY'])
+api_key = ENV['MAILCHIMP_API_KEY']
+if api_key
+  mailchimp = Mailchimp::API.new(api_key)
+else
+  abort 'No mailchimp api key; add it to a .env file'
+end
 
 today_string = Date.today.strftime('%b %e %Y')
 timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 subject = "~films this week~ #{today_string}"
+
+if !for_real
+  subject += ' [dry run]'
+end
+
 html = File.read('email.html')
 
 if for_real

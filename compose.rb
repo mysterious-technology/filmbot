@@ -10,6 +10,7 @@ require_relative 'helpers'
 opts = Slop.parse { |o|
   o.string '-c', '--city', 'city to scrape'
   o.integer '-l', '--limit', 'limit to n theaters'
+  o.string '-m', '--matching', 'custom matcher to only run over a subset glob of scrapers'
 }
 
 @total_time = 0
@@ -32,12 +33,13 @@ end
 
 city = opts[:city]
 limit = opts[:limit]
+matching = opts[:matching] || '*'
 results = {}
 
 puts "~ i am filmbot ~"
 abort 'feed me a city' unless city
 
-files = Dir.glob("./scraper/#{city}/*.rb")
+files = Dir.glob("./scraper/#{city}/#{matching}.rb")
 scrapers = load_and_new(files).select { |s| s.is_a? Scraper::Base }
 scrapers = scrapers.take(limit) if limit
 

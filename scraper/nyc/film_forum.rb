@@ -19,14 +19,14 @@ module Scraper
         doc = Base.get_doc(link)
 
         # get title
-        title = doc.css("h1.main-title").first.text.titleize
+        title = doc.css("h2.main-title").inner_html.gsub('<br>',' ')
 
         # get dates: complicated
         # possible formats:
         # "Tuesday, October 31"
         # "Wednesday, November 1 - Tuesday, November 14"
         # "HELD OVER! MUST END THURSDAY!"
-        possible_dates = doc.css("h1.main-title+div.details p").map { |e| e.text }
+        possible_dates = doc.css("h2.main-title+div.details p").map { |e| e.text }
 
         # sanitize dates and split if hyphenated
         raw_dates = possible_dates.map { |s| s.remove_whitespace.split('-') }.flatten
@@ -57,7 +57,7 @@ module Scraper
               is_opening = true
             end
           end
-          closing_formats = %w(HELDOVER!MUSTEND%A! MUSTEND%A! MustEnd%A! Mustend%A! ENDING%A! Ending%A! ENDS%A! Ends%A!)
+          closing_formats = %w(HELDOVER!MUSTEND%A! MUSTEND%A! MustEnd%A! Mustend%A! ENDING%A! Ending%A! ENDS%A! Ends%A! Through%A,%B%d)
           closing_formats.each do |f|
             if Date._strptime(s, f)
               dates.push(Date.strptime(s, f))

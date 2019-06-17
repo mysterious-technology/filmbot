@@ -22,12 +22,16 @@
 </style>
 
 <body>
+
 <p style="<%= font_style %>">
   <a href="<%= link %>"><%= link %></a>
 </p>
 <p style="<%= font_style %>">
   <%= today_string %>
 </p>
+
+<% start_utc = stats['global']['end_utc'] %>
+<%= "<pre style=\"color: lightgray\">start:#{start_utc}</pre>" %>
 
 <% results.each do |scraper, films| %>
   <h2 style="<%= font_style %>">☛ <%= scraper.theater_name %></h2>
@@ -47,14 +51,17 @@
     <% end %>
   </table>
 
+  <% scrape_total = stats[scraper]['total_s'] %>
+  <% scrape_avg = stats[scraper]['avg_s'] %>
+  <%= "<pre style=\"color: lightgray\">avg:#{scrape_avg}, total:#{scrape_total}</pre>" %>
 <% end %>
 <p>
   <a href="mailto:filmbotnyc@gmail.com?Subject=secret">
     <img src="https://raw.githubusercontent.com/benzguo/filmscraper/master/2046-secret.jpg" width="320px"> </a>
 </p>
-<p style="<%= font_style %>;color: gray">
-  <%= timestamp %>
-</p>
 
+<% total = stats['global']['total_s'] %>
+<% end_utc = stats['global']['end_utc'] %>
+<%= "<pre style=\"color: lightgray\">total:#{total}, end:#{end_utc}</pre>" %>
 </body>
 </html>

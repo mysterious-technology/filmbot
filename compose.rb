@@ -19,45 +19,49 @@ def print_header(scraper)
   puts "☛ #{scraper.theater_name}"
 end
 
-def print_stats(time, films)
-  puts "=========================="
-  puts "scraped #{films.length} films in #{'%.2f' % time}s"
-  puts "avg: #{'%.2f' % (time / films.length)}s"
-  puts "=========================="
-  @total_time += time
-end
-
 ###############################
-# 🎥 🤖 start filmbot 🎥 🤖
+# start
 ###############################
 
 city = opts[:city]
 limit = opts[:limit]
 matching = opts[:matching] || '*'
 results = {}
+stats = {}
 
 puts "~ i am filmbot ~"
 abort 'feed me a city' unless city
 
+stats['global'] = {}
+stats['global']['start_utc'] = Time.now.utc.iso8601
 files = Dir.glob("./scraper/#{city}/#{matching}.rb")
 scrapers = load_and_new(files).select { |s| s.is_a? Scraper::Base }
 scrapers = scrapers.take(limit) if limit
 
 abort "filmbot does not know about #{city}" unless scrapers.count > 0
 
-scrapers.each { |scraper|
-  print_header(scraper)
-  time = Benchmark.realtime { results[scraper] = scraper.scrape }
-  print_stats(time, results[scraper])
+total_s = Benchmark.realtime {
+  scrapers.each { |scraper|
+    print_header(scraper)
+    time = Benchmark.realtime { results[scraper] = scraper.scrape }
+    stats[scraper] = {}
+    total_s =  "#{'%.2f' % time}s"
+    avg_s = "#{'%.2f' % (time / results[scraper].length)}s"
+    puts "=========================="
+    puts "scraped #{results[scraper].length} films in #{total_s}"
+    puts "avg: #{avg_s}"
+    puts "=========================="
+    stats[scraper]['total_s'] = total_s
+    stats[scraper]['avg_s'] = avg_s
+  }
 }
 
 puts "~ done scraping ~"
-puts "scraped #{results.length} theaters in #{'%.2f' % @total_time}s"
-puts "avg: #{'%.2f' % (@total_time / results.length)}s"
 
 puts "~ writing email ~"
+stats['global']['total_s'] = "#{'%.2f' % total_s}s"
+stats['global']['end_utc'] = Time.now.utc.iso8601
 today_string = Date.today.strftime('%e %b %Y')
-timestamp = DateTime.now.strftime('%Y%m%dT%H%M')
 template = File.read('email.erb')
 result = ERB.new(template).result
 File.write('email.html', result)

@@ -9,19 +9,11 @@ require_relative '../helpers'
 require_relative '../models/film'
 
 =begin
-other theaters:
-bam: uses javascript, how do you scrape?
-village east: iterate over url for week
-nitehawk: iterate over url for week
-lincoln plaza: no info to scrape
-spectacle: hard to scrape
-alamo: too mainstream
-
-CSS selectors:
-descendant selector (space)
-child selector (>)
-adjacent sibling selector (+)
-general sibling selector (~)
+reference CSS selectors:
+descendant (space)
+child (>)
+adjacent sibling (+)
+general sibling (~)
 =end
 
 DATE_FORMATS = %w(%Y-%m-%d %m-%d-%Y).freeze
@@ -56,7 +48,8 @@ module Scraper
       links
     end
 
-    # scrapes showtime links, returning an array of dates
+    # scrapes links matching a format, e.g. if showtimes are listed on fandango
+    # returns an array of dates
     public def scrape_showtime_links(doc, matching, container = nil)
       selector = "a[href*=\"#{matching}\"]"
       selector = "#{container} #{selector}" if container

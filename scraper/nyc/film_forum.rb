@@ -6,15 +6,16 @@ module Scraper
   class FilmForum < Base
     def initialize
       super('https://filmforum.org/now_playing')
+      @display_name = 'Film Forum'
+      @url_name = 'film_forum'
     end
 
-    # (super slow) get movie links from calendar page, go to each page
-    # lots of movies per week at forum
-    # currently way too slow (~2min), need to parallelize
-    # leaving out for now
+    # get movie links from calendar page, go to each page
+    # lots of movies, consider parallelizing
     def scrape
       links = scrape_film_links(doc, "filmforum.org/film")
-      links.map { |link|
+      errors = []
+      films = links.map { |link|
         puts "scraping #{link}"
 
         doc = Base.get_doc(link)
@@ -22,7 +23,12 @@ module Scraper
         # get title
         title = doc.css("h2.main-title").inner_html.gsub('<br>',' ')
 
-        # get dates: complicated
+        # get blurb
+        blurb = doc.css("div.copy p").sort_by { |e|
+          e.text.length # choose longest <p> text
+        }.last.text
+
+        # get dates (this is janky)
         # possible formats:
         # "Tuesday, October 31"
         # "Wednesday, November 1 - Tuesday, November 14"
@@ -77,31 +83,32 @@ module Scraper
             new_dates.push(date)
             date += 1
           end
-          # if range, fill in dates in-between
+        # if range, fill in dates in-between
         elsif is_range
           date = dates.first
           while date <= dates.last
             new_dates.push(date)
             date += 1
           end
-          # if opening, there should only be one date
+        # if opening, there should only be one date
         elsif is_opening && dates.length == 1
           new_dates = dates
-          # date parsing error
+        # couldn't parse
         else
-          puts "⚠️ Error parsing dates #{raw_dates}"
+          error = "No dates: #{raw_dates}"
+          puts "⚠️ #{error}"
+          errors << Film.new(title, link, [], blurb, error)
           next
         end
         dates = new_dates
         puts "found #{dates.length} dates"
 
-        # get blurb
-        blurb = doc.css("div.copy p").sort_by { |e|
-          e.text.length # choose longest <p> text
-        }.last.text
-
-        Film.new(title, link, dates, blurb)
+        Film.new(title, link, dates, blurb, nil)
       }.compact
+      {
+        :films => films,
+        :errors => errors,
+      }
     end
   end
 end

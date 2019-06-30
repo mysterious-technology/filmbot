@@ -55,7 +55,7 @@ end
 html = File.read('email.html')
 
 if for_real
-  FileUtils.cp_r('email.html', "archive/#{city}/#{timestamp}.html", remove_destination: true)
+  FileUtils.cp_r('index.html', "archive/#{city}/#{timestamp}.html", remove_destination: true)
 end
 
 from_email = "filmbotnyc@gmail.com"

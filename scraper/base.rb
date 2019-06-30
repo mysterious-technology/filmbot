@@ -21,12 +21,13 @@ DATE_FORMATS = %w(%Y-%m-%d %m-%d-%Y).freeze
 
 module Scraper
   class Base
-    attr_accessor :url, :theater_name
+    attr_accessor :url, :display_name, :url_name
 
     def initialize(url)
       @url = url
       class_name = self.class.name.split('::').last || ''
-      @theater_name = class_name.gsub(/[A-Z]/, ' \0').titleize
+      @display_name = class_name.gsub(/[A-Z]/, ' \0').titleize
+      @url_name = class_name.downcase
     end
 
     public def doc
@@ -49,33 +50,8 @@ module Scraper
       links
     end
 
-    # scrapes links matching a format, e.g. if showtimes are listed on fandango
-    # returns an array of dates
-    public def scrape_showtime_links(doc, matching, container = nil)
-      selector = "a[href*=\"#{matching}\"]"
-      selector = "#{container} #{selector}" if container
-      dates = doc.css(selector).map { |l|
-        link = l['href']
-        query_string = link.split('?').last
-        query_params = CGI::parse(query_string)
-        query_params.keys
-          .select { |k| k.include?('date') }
-          .map { |key|
-            date_string = query_params[key].first
-            DATE_FORMATS.map { |format|
-              if Date._strptime(date_string, format)
-                next Date.strptime(date_string, format)
-              end
-            }
-          }.flatten.compact
-      }.flatten.uniq
-
-      puts dates.length == 0 ? "⚠️ no dates found" : "found #{dates.length} showtimes"
-      dates
-    end
-
     public def to_s
-      "[#{@url}]<#{@theater_name}>"
+      "[#{@url}]<#{@display_name}>"
     end
 
     public def hash

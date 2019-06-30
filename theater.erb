@@ -2,6 +2,8 @@
 
 <% theater_name = @theater_name %>
 <% films = @films %>
+<% errors = @errors %>
+<% source = @source %>
 <% stats = @scraper_stats %>
 <h2 style="<%= font_style %>">☛ <%= theater_name %></h2>
 <table width="100%">
@@ -12,7 +14,7 @@
           <h3>
             ★ <a style="text-underline: none" href=<%= film.link %>><%= film.title %></a>
           </h3>
-          <pre style="font-weight: bold"><%= film.week_overview_tomorrow %></pre>
+          <pre style="font-weight: bold; color: black"><%= film.week_overview_tomorrow %></pre>
           <%= "<p style=\"#{font_style}\">#{film.blurb_html}</p>" %>
         </td>
       <% end %>
@@ -22,4 +24,10 @@
 
 <% total_s = stats['total_s'] %>
 <% avg_s = stats['avg_s'] %>
-<%= "<pre style=\"color: lightgray\">total:#{total_s}, avg:#{avg_s}</pre>" %>
+<%= "<pre>total:#{total_s}, avg:#{avg_s}</pre>" %>
+
+<% errors.each do |film| %>
+<pre style="color: gray">
+★ <a style="color: gray; text-decoration: underline" href=<%= film.link %>><%= film.title %></a> <%= "#{film.error}" %> <a style="color: gray; text-decoration: underline" href=<%= source %>>(source)</a>
+</pre>
+<% end %>

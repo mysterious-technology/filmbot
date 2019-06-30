@@ -17,14 +17,14 @@ opts = Slop.parse { |o|
 @total_time = 0
 
 def print_header(scraper)
-  puts "☛ #{scraper.theater_name}"
+  puts "☛ #{scraper.display_name}"
 end
 
 ###############################
 # start
 ###############################
 
-city = opts[:city]
+@city = opts[:city]
 limit = opts[:limit]
 matching = opts[:matching] || '*'
 results = {}
@@ -41,7 +41,7 @@ scrapers = scrapers.take(limit) if limit
 
 abort "filmbot does not know about #{city}" unless scrapers.count > 0
 
-theater_names = scrapers.map { |s| s.theater_name }
+scraper_names = scrapers.map { |s| s.url_name }
 
 puts "~ scraping ~"
 total_s = Benchmark.realtime {
@@ -50,9 +50,13 @@ total_s = Benchmark.realtime {
     scraper = scrapers.shift
     forks << Process.fork do
       print_header(scraper)
-      @theater_name = scraper.theater_name
+      @theater_name = scraper.display_name
+      @scraper_name = scraper.url_name
+      @source = "https://github.com/benzguo/filmbot/tree/master/scraper/#{city}/#{@scraper_name}.rb"
       @scraper_stats = {}
-      time = Benchmark.realtime { @films = scraper.scrape }
+      time = Benchmark.realtime { @result = scraper.scrape }
+      @films = @result[:films]
+      @errors = @result[:errors]
       scraper_stats = {}
       scraper_total_s =  "#{'%.2f' % time}s"
       scraper_avg_s = "#{'%.2f' % (time / @films.size)}s"
@@ -60,10 +64,10 @@ total_s = Benchmark.realtime {
       @scraper_stats['avg_s'] = scraper_avg_s
       theater_template = File.read('theater.erb')
       theater_html = ERB.new(theater_template).result
-      filename = "#{city}_#{@theater_name}.html"
+      filename = "#{city}_#{@scraper_name}.html"
       File.write(filename, theater_html)
       puts "=========================="
-      puts "wrote #{filename}: #{@films.size} films in #{scraper_total_s}"
+      puts "wrote #{filename}: #{@films.size} films in #{scraper_total_s}, #{@errors.size} errors"
       puts "=========================="
     end
   end
@@ -72,17 +76,16 @@ total_s = Benchmark.realtime {
 
 puts "~ done scraping ~"
 total_s_str = "#{'%.2f' % total_s}s"
-puts "#{total_s_str}"
 
 puts "~ combining results ~"
 @stats['total_s'] = total_s_str
 @stats['end_utc'] = Time.now.utc.iso8601
 @today_string = Date.today.strftime('%e %b %Y')
 @htmls = []
-theater_names.each do |theater_name|
-  theater_filename = "#{city}_#{theater_name}.html"
-  @htmls << File.read(theater_filename)
-  `rm '#{theater_filename}'`
+scraper_names.each do |scraper_name|
+  scraper_filename = "#{city}_#{scraper_name}.html"
+  @htmls << File.read(scraper_filename)
+  `rm '#{scraper_filename}'`
 end
 template = File.read('index.erb')
 result = ERB.new(template).result

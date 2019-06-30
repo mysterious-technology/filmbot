@@ -9,38 +9,59 @@ module Scraper
 
     def initialize
       super('http://www.ifccenter.com')
-      @theater_name = 'IFC'
+      @display_name = 'IFC'
+      @url_name = 'ifc'
     end
 
     # (slow, 12s) get movie links, go to each page
     def scrape
       links = scrape_film_links(doc, "ifccenter.com/films")
-      links.map do |link|
+      errors = []
+      films = links.map do |link|
         puts "scraping #{link}"
         child_doc = Base.get_doc(link)
         title = child_doc.css("h1.title").text.titleize
-        dates = _get_dates(child_doc)
         twitter_desc = child_doc.css("meta[name=\"twitter:description\"]").first['content']
-        Film.new(title, link, dates, twitter_desc)
-      end
+        result = parse_dates(child_doc)
+        dates = result[:dates]
+        if dates.length == 0 
+          error = result[:error]
+          puts "⚠️ #{error}" 
+          errors << Film.new(title, link, dates, twitter_desc, error)
+          next
+        end
+        puts "found #{dates.length} showtimes"
+        Film.new(title, link, dates, twitter_desc, nil)
+      end.compact
+      {
+        :films => films,
+        :errors => errors,
+      }
     end
 
-    def _get_dates(doc)
+    def parse_dates(doc)
       dates = []
+      date_strings = []
       doc.css("ul.schedule-list div.details").map do |detail|
-        date = detail.css('p strong')&.text
-        if date && Date._strptime(date, DATE_FMT)
+        date_string = detail.css('p strong')&.text
+        date_strings << date_string
+        if date_string && Date._strptime(date_string, DATE_FMT)
           times = detail.css('ul.times span')
           if times
             dates.concat(
-              times.map(&:text).compact.select { |t| Date._strptime(t, TIME_FMT) }.map { |t| "#{date} #{t}" }
+              times.map(&:text).compact.select { |t| Date._strptime(t, TIME_FMT) }.map { |t| "#{date_string} #{t}" }
             )
           end
         end
       end
-      dates = dates.uniq.map { |s| Date.strptime(s, "#{DATE_FMT} #{TIME_FMT}") }
-      puts dates.length == 0 ? "⚠️ no dates found" : "found #{dates.length} showtimes"
-      dates
+      dates = dates.uniq.map { |s| 
+        Date.strptime(s, "#{DATE_FMT} #{TIME_FMT}") 
+      }
+      date_display = doc.css("p.date-time")&.text
+      {
+        :dates => dates,
+        :error => "No dates: \"#{date_display}\""
+      }
     end
   end
 end

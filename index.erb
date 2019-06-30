@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-<% link = city === 'sf' ? 'http://filmbot.club' : 'http://filmbot.nyc' %>
 <% font_style = "font-family: 'Source Code Pro', Monaco, monospace" %>
 <head>
   <meta name="viewport" content="width=device-width"/>
@@ -19,6 +18,10 @@
   strong {
     font-weight: 900;
   }
+
+  pre {
+    color: lightgray;
+  }
 </style>
 
 <body>
@@ -30,19 +33,20 @@
 <% end_utc = stats['end_utc'] %>
 <% htmls = @htmls %>
 
+<% link = city === 'sf' ? 'http://filmbot.club' : 'TODO' %>
 <p style="<%= font_style %>">
-  <a href="<%= link %>"><%= link %></a>
+  <a href="<%= link %>">filmbot <%= "#{city}" %></a>
 </p>
 <p style="<%= font_style %>">
   <%= today_string %>
 </p>
 
-<%= "<pre style=\"color: lightgray\">start:#{start_utc}</pre>" %>
+<%= "<pre>start:#{start_utc}</pre>" %>
 
 <% htmls.each do |html| %>
 <%= "#{html}" %>
 <% end %>
 
-<%= "<pre style=\"color: lightgray\">total:#{total}, end:#{end_utc}</pre>" %>
+<%= "<pre>total:#{total}, end:#{end_utc}</pre>" %>
 </body>
 </html>

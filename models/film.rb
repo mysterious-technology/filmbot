@@ -1,14 +1,15 @@
 # typed: true
 class Film
-  attr_accessor :title, :link, :dates, :blurb
+  attr_accessor :title, :link, :dates, :blurb, :error
   DAYS = %w(Su M T W Th F S).freeze
   DIRECTOR_RE = /[dD]irected by (?<full_name>([A-Z][\wáéíóú]+ ?)+)/
 
-  def initialize(title, link, dates, blurb)
+  def initialize(title, link, dates, blurb, error)
     self.title = title
     self.link = link
     self.dates = dates
     self.blurb = blurb
+    self.error = error
   end
 
   def blurb

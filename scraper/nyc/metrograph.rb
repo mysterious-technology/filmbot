@@ -5,15 +5,17 @@ module Scraper
   class MetroGraph < Base
     def initialize
       super('http://metrograph.com/film')
-      @theater_name = 'MetroGraph'
+      @display_name = 'MetroGraph'
+      @url_name = 'metrograph'
     end
 
-    # (fast, 1.2s) everything on one page
+    # everything on one page, fast
     def scrape
       film_els = doc.css('h4.title.narrow a')
       puts "found #{film_els.count} films"
 
-      film_els.map { |e|
+      errors = []
+      films = film_els.map { |e|
         link = e["href"]
         puts "parsing #{link}"
         title = e.text.titleize
@@ -25,7 +27,9 @@ module Scraper
           Date.strptime(s, "%Y-%m-%d")
         }
         if dates.length == 0
-          puts "⚠️ no dates found"
+          error = "No dates"
+          puts "⚠️ #{error}"
+          errors << Film.new(title, link, dates, blurb, error)
           next
         end
         puts "found #{dates.length} dates"
@@ -33,7 +37,11 @@ module Scraper
         # get blurb
         blurb = doc.css("a[href=\"#{link}\"]~div.text div.summary").text.strip!
 
-        Film.new(title, link, dates, blurb)
+        Film.new(title, link, dates, blurb, nil)
+      }.compact
+      {
+        :films => films,
+        :errors => errors,
       }
     end
   end

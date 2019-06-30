@@ -37,7 +37,7 @@
 
 <p style="<%= font_style %>">
 <strong>FILMBOT <%= "#{city.upcase}" %></strong> &nbsp
-<% scrapers.each do |s| %>
+<% scrapers.sort_by(&:url_name).each do |s| %>
 ☛ <a style="color: black; text-decoration: underline" href=<%= "##{s.url_name}" %>><%= s.display_name %></a> &nbsp
 <% end %>
 </p>

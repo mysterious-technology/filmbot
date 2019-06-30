@@ -79,7 +79,7 @@ puts "~ combining results ~"
 @stats['end_utc'] = Time.now.utc.iso8601
 @today_string = Date.today.strftime('%e %b %Y')
 @htmls = []
-@scrapers.each do |s|
+@scrapers.sort_by(&:url_name).each do |s|
   scraper_filename = "#{@city}_#{s.url_name}.html"
   @htmls << File.read(scraper_filename)
   `rm '#{scraper_filename}'`

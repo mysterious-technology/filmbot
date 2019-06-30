@@ -13,7 +13,6 @@ class Film
   end
 
   def blurb
-    # truncate to 280 chars
     @blurb.slice(0..280)
   end
 

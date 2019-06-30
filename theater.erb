@@ -1,11 +1,12 @@
 <% font_style = "font-family: 'Source Code Pro', Monaco, monospace" %>
 
 <% theater_name = @theater_name %>
+<% scraper_name = @scraper_name %>
 <% films = @films %>
 <% errors = @errors %>
 <% source = @source %>
 <% stats = @scraper_stats %>
-<h2 style="<%= font_style %>">☛ <%= theater_name %></h2>
+<h2 style="<%= font_style %>">☛ <a style="color: black; text-decoration: underline" id=<%=scraper_name%>><%= theater_name %></a></h2>
 <table width="100%">
   <% Scraper::Base.films_this_week(films).each do |row| %>
     <tr>
@@ -23,8 +24,8 @@
 </table>
 
 <% total_s = stats['total_s'] %>
-<% avg_s = stats['avg_s'] %>
-<%= "<pre>total:#{total_s}, avg:#{avg_s}</pre>" %>
+<% each_s = stats['each_film_avg_s'] %>
+<%= "<pre>#{total_s}, each: ~#{each_s}</pre>" %>
 
 <% errors.each do |film| %>
 <pre style="color: gray">

@@ -31,40 +31,37 @@ results = {}
 stats = {}
 
 puts "~ i am filmbot ~"
-abort 'feed me a city' unless city
+abort 'feed me a city' unless @city
 
 @stats = {}
 @stats['start_utc'] = Time.now.utc.iso8601
-files = Dir.glob("./scraper/#{city}/#{matching}.rb")
-scrapers = load_and_new(files).select { |s| s.is_a? Scraper::Base }
-scrapers = scrapers.take(limit) if limit
+files = Dir.glob("./scraper/#{@city}/#{matching}.rb")
+@scrapers = load_and_new(files).select { |s| s.is_a? Scraper::Base }
+@scrapers = @scrapers.take(limit) if limit
 
-abort "filmbot does not know about #{city}" unless scrapers.count > 0
-
-scraper_names = scrapers.map { |s| s.url_name }
+abort "filmbot does not know about #{@city}" unless @scrapers.count > 0
 
 puts "~ scraping ~"
 total_s = Benchmark.realtime {
   forks = []
-  while scrapers.size > 0
-    scraper = scrapers.shift
+  @scrapers.each do |scraper|
     forks << Process.fork do
       print_header(scraper)
       @theater_name = scraper.display_name
       @scraper_name = scraper.url_name
-      @source = "https://github.com/benzguo/filmbot/tree/master/scraper/#{city}/#{@scraper_name}.rb"
+      @source = "https://github.com/benzguo/filmbot/tree/master/scraper/#{@city}/#{@scraper_name}.rb"
       @scraper_stats = {}
       time = Benchmark.realtime { @result = scraper.scrape }
       @films = @result[:films]
       @errors = @result[:errors]
       scraper_stats = {}
       scraper_total_s =  "#{'%.2f' % time}s"
-      scraper_avg_s = "#{'%.2f' % (time / @films.size)}s"
+      scraper_each_film_avg_s = "#{'%.2f' % (time / @films.size)}s"
       @scraper_stats['total_s'] = scraper_total_s
-      @scraper_stats['avg_s'] = scraper_avg_s
+      @scraper_stats['each_film_avg_s'] = scraper_each_film_avg_s
       theater_template = File.read('theater.erb')
       theater_html = ERB.new(theater_template).result
-      filename = "#{city}_#{@scraper_name}.html"
+      filename = "#{@city}_#{@scraper_name}.html"
       File.write(filename, theater_html)
       puts "=========================="
       puts "wrote #{filename}: #{@films.size} films in #{scraper_total_s}, #{@errors.size} errors"
@@ -82,8 +79,8 @@ puts "~ combining results ~"
 @stats['end_utc'] = Time.now.utc.iso8601
 @today_string = Date.today.strftime('%e %b %Y')
 @htmls = []
-scraper_names.each do |scraper_name|
-  scraper_filename = "#{city}_#{scraper_name}.html"
+@scrapers.each do |s|
+  scraper_filename = "#{@city}_#{s.url_name}.html"
   @htmls << File.read(scraper_filename)
   `rm '#{scraper_filename}'`
 end

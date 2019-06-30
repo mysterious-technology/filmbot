@@ -27,26 +27,32 @@
 <body>
 
 <% today_string = @today_string %>
+<% city = @city %>
 <% stats = @stats %>
-<% start_utc = stats['end_utc'] %>
+<% start_utc = stats['start_utc'] %>
 <% total = stats['total_s'] %>
 <% end_utc = stats['end_utc'] %>
+<% scrapers = @scrapers %>
 <% htmls = @htmls %>
 
-<% link = city === 'sf' ? 'http://filmbot.club' : 'TODO' %>
 <p style="<%= font_style %>">
-  <a href="<%= link %>">filmbot <%= "#{city}" %></a>
+<strong>FILMBOT <%= "#{city.upcase}" %></strong> &nbsp
+<% scrapers.each do |s| %>
+☛ <a style="color: black; text-decoration: underline" href=<%= "##{s.url_name}" %>><%= s.display_name %></a> &nbsp
+<% end %>
 </p>
+
 <p style="<%= font_style %>">
   <%= today_string %>
 </p>
 
-<%= "<pre>start:#{start_utc}</pre>" %>
+<%= "<pre>start: #{start_utc}</pre>" %>
 
 <% htmls.each do |html| %>
 <%= "#{html}" %>
 <% end %>
 
-<%= "<pre>total:#{total}, end:#{end_utc}</pre>" %>
+<%= "<pre>#{total}<pre>" %>
+<%= "<pre>end: #{end_utc}</pre>" %>
 </body>
 </html>

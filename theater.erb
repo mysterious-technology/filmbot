@@ -1,0 +1,25 @@
+<% font_style = "font-family: 'Source Code Pro', Monaco, monospace" %>
+
+<% theater_name = @theater_name %>
+<% films = @films %>
+<% stats = @scraper_stats %>
+<h2 style="<%= font_style %>">☛ <%= theater_name %></h2>
+<table width="100%">
+  <% Scraper::Base.films_this_week(films).each do |row| %>
+    <tr>
+      <% row.each_with_index do |film, i| %>
+        <td width="50%" valign="top" style="<%= font_style %>; padding-right: <%= i % 2 == 0 ? '16px' : '0px' %>;">
+          <h3>
+            ★ <a style="text-underline: none" href=<%= film.link %>><%= film.title %></a>
+          </h3>
+          <pre style="font-weight: bold"><%= film.week_overview_tomorrow %></pre>
+          <%= "<p style=\"#{font_style}\">#{film.blurb_html}</p>" %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
+
+<% total_s = stats['total_s'] %>
+<% avg_s = stats['avg_s'] %>
+<%= "<pre style=\"color: lightgray\">total:#{total_s}, avg:#{avg_s}</pre>" %>

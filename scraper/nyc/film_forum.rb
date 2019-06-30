@@ -1,3 +1,4 @@
+# typed: false
 require_relative '../base'
 
 module Scraper

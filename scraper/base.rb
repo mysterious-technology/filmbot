@@ -1,3 +1,4 @@
+# typed: false
 require 'httparty'
 require 'json'
 require 'nokogiri'

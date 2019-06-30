@@ -1,3 +1,4 @@
+# typed: true
 class Film
   attr_accessor :title, :link, :dates, :blurb
   DAYS = %w(Su M T W Th F S).freeze

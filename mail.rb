@@ -1,4 +1,5 @@
 #! /usr/bin/env ruby
+# typed: false
 require 'date'
 require 'dotenv/load'
 require 'mailchimp'

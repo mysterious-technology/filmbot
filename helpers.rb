@@ -1,3 +1,4 @@
+# typed: false
 class String
   # removes all whitespace and non-ascii characters
   # use when parsing dates with spaces

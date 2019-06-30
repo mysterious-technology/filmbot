@@ -1,4 +1,5 @@
 #! /usr/bin/env ruby
+# typed: true
 
 require 'benchmark'
 require 'pry'
@@ -45,14 +46,14 @@ total_s = Benchmark.realtime {
     print_header(scraper)
     time = Benchmark.realtime { results[scraper] = scraper.scrape }
     stats[scraper] = {}
-    total_s =  "#{'%.2f' % time}s"
-    avg_s = "#{'%.2f' % (time / results[scraper].length)}s"
+    scraper_total_s =  "#{'%.2f' % time}s"
+    scraper_avg_s = "#{'%.2f' % (time / results[scraper].length)}s"
     puts "=========================="
-    puts "scraped #{results[scraper].length} films in #{total_s}"
-    puts "avg: #{avg_s}"
+    puts "scraped #{results[scraper].length} films in #{scraper_total_s}"
+    puts "avg: #{scraper_avg_s}"
     puts "=========================="
-    stats[scraper]['total_s'] = total_s
-    stats[scraper]['avg_s'] = avg_s
+    stats[scraper]['total_s'] = scraper_total_s
+    stats[scraper]['avg_s'] = scraper_avg_s
   }
 }
 

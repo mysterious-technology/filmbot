@@ -9,11 +9,13 @@ module Scraper
 
     def initialize
       super(BASE_URL)
+      @display_name = 'Roxie Theater'
+      @url_name = 'roxie'
     end
 
     def scrape
       memo = {}
-      doc.css('div.roxie-showtimes_widget div.roxie-showtimes').map { |day|
+      films = doc.css('div.roxie-showtimes_widget div.roxie-showtimes').map { |day|
         raw_date = day.css('h3').text
         cleaned = IGNORE_DATE.reduce(raw_date) { |m, c| m.gsub(c, '') }
         date = Date.strptime(cleaned, DATE_FORMAT)
@@ -23,9 +25,13 @@ module Scraper
           title = showtime_node.text.titleize
           memo[link] = memo[link] || Base.get_doc(link)
           detail = memo[link].css('div.content p').collect(&:text).max_by(&:length)
-          Film.new(title, link, [date], detail)
+          Film.new(title, link, [date], detail, nil)
         }
       }.flatten
+      {
+        :films => films, 
+        :errors => [],
+      }
     end
   end
 end

@@ -62,6 +62,8 @@ total_s = Benchmark.realtime {
       theater_template = File.read('theater.erb')
       theater_html = ERB.new(theater_template).result
       filename = "#{@city}_#{@scraper_name}.html"
+      films_this_week = Scraper::Base.films_this_week(@films)
+      puts "films this week: #{films_this_week.size}"
       File.write(filename, theater_html)
       puts "=========================="
       puts "wrote #{filename}: #{@films.size} films in #{scraper_total_s}, #{@errors.size} errors"

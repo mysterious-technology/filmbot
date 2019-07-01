@@ -86,8 +86,9 @@ puts "~ combining results ~"
   @htmls << File.read(scraper_filename)
   `rm '#{scraper_filename}'`
 end
-template = File.read('index.erb')
+template = File.read('city.erb')
 result = ERB.new(template).result
-File.write('index.html', result)
+output_file = "#{@city}.html"
+File.write(output_file, result)
 
-`open index.html`
+`open #{output_file}`

@@ -49,7 +49,7 @@ total_s = Benchmark.realtime {
       print_header(scraper)
       @theater_name = scraper.display_name
       @scraper_name = scraper.url_name
-      @source = "https://github.com/benzguo/filmbot/tree/master/scraper/#{@city}/#{@scraper_name}.rb"
+      @source = "https://github.com/openscrape/filmbot/tree/master/scraper/#{@city}/#{@scraper_name}.rb"
       @scraper_stats = {}
       time = Benchmark.realtime { @result = scraper.scrape }
       @films = @result[:films]

@@ -40,7 +40,10 @@ class Film
 
   private def overview(day_offset = 0)
     spacer = '-'
-    overview = (0..6).map { |i| Date.today + i + day_offset }.map { |date|
+    now = Time.now.utc
+    now_pst = now + Time.zone_offset("PDT")
+    today = now_pst.to_date
+    overview = (0..6).map { |i| today + i + day_offset }.map { |date|
       @dates.include?(date) ? DAYS[Integer(date.strftime('%w'))] : spacer
     }
     overview.uniq == [spacer] ? nil : overview.join(' ')

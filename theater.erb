@@ -21,7 +21,6 @@
       <% end %>
     </tr>
   <% end %>
-</table>
 
 <% total_s = stats['total_s'] %>
 <% each_s = stats['each_film_avg_s'] %>
@@ -29,6 +28,8 @@
 
 <% errors.each do |film| %>
 <pre style="color: gray">
-★ <a style="color: gray; text-decoration: underline" href=<%= film.link %>><%= film.title %></a> <%= "#{film.error}" %> <a style="color: gray; text-decoration: underline" href=<%= source %>>(source)</a>
+★ <a style="color: gray; text-decoration: underline" href=<%= film.link %>><%= film.title %></a> <%= "#{film.error.slice(0..20)}" %> <a style="color: gray; text-decoration: underline" href=<%= source %>>(source)</a>
 </pre>
 <% end %>
+
+</table>

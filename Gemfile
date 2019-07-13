@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem 'rest-client', '~>1.8.0'
+gem 'rest-client', '~>2.0.1'
 gem 'httparty', '~>0.15.6'
 gem 'json', '~>2.1.0'
 gem 'nokogiri', '~>1.10.3'

@@ -28,7 +28,7 @@
 
 <% errors.each do |film| %>
 <pre style="color: gray">
-★ <a style="color: gray; text-decoration: underline" href=<%= film.link %>><%= film.title %></a> <%= "#{film.error.slice(0..20)}" %> <a style="color: gray; text-decoration: underline" href=<%= source %>>(source)</a>
+★ <a style="color: gray; text-decoration: underline" href=<%= film.link %>><%= film.title %></a> <%= "#{film.error.slice(0..19)}" %>
 </pre>
 <% end %>
 

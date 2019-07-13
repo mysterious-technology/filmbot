@@ -90,5 +90,3 @@ template = File.read('city.erb')
 result = ERB.new(template).result
 output_file = "#{@city}.html"
 File.write(output_file, result)
-
-`open #{output_file}`

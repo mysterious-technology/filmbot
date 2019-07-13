@@ -2,6 +2,7 @@
 
 require 'rest_client'
 require 'dotenv'
+require 'json'
 
 Dotenv.load
 
@@ -64,10 +65,10 @@ end
 # == cron ==
 
 Process.fork do
-  execute("./generate.rb -c nyc")
+#   execute("./generate.rb -c nyc")
 end
 Process.fork do
-  execute("./generate.rb -c sfbay")
+#   execute("./generate.rb -c sfbay")
 end
 Process.waitall
 push_to_github :path => "nyc.html", :content => File.read('nyc.html'), :repo => 'filmbot'

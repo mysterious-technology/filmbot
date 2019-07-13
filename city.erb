@@ -35,10 +35,10 @@
 <% scrapers = @scrapers %>
 <% htmls = @htmls %>
 
-<p style="<%= font_style %>">
+<p style="<%= font_style %>; background-color: black; color: white; text-decoration: none">
 <strong>FILMBOT <%= "#{city.upcase}" %></strong> &nbsp
 <% scrapers.sort_by(&:url_name).each do |s| %>
-☛ <a style="color: black; text-decoration: underline" href=<%= "##{s.url_name}" %>><%= s.display_name %></a> &nbsp
+☛ <a style="<%= font_style %>; background-color: black; color: white; text-decoration: none" href=<%= "##{s.url_name}" %>><%= s.display_name %></a> &nbsp
 <% end %>
 </p>
 

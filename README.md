@@ -6,7 +6,7 @@ https://filmbot.info/
 
 Filmbot scrapes independent movie theater listings in a city, and generates a digest of movies playing in the next week. 
 
-Adding a new theater is pretty easy - each one takes me less than 20 minutes. I'd love to see contributions adding new cities, or new event categories. 
+Please contribute! Adding a new theater is pretty easy - each one takes me less than 20 minutes. I'd love to see contributions adding new cities, or new event categories. 
 
 It's pretty easy to scrape any site with either:
 

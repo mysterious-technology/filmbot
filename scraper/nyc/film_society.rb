@@ -5,7 +5,7 @@ module Scraper
 
   class FilmSociety < Base
     def initialize
-      super('https://www.filmlinc.org/calendar/')
+      super('https://www.filmlinc.org/nyff60-ticket-availability-and-updates/')
       @display_name = 'Film Society'
       @url_name = 'film_society'
     end
@@ -17,7 +17,7 @@ module Scraper
         puts "scraping #{link}"
         child_doc = Base.get_doc(link)
         title = child_doc.css("title").first.text.titleize
-        blurb = child_doc.css("div.post-content").first.text.strip!
+        blurb = child_doc.css("div.post-content").first&.text&.strip!
 
         date_strings = child_doc.css("div.day-showtimes h4").map { |e|
           e.text

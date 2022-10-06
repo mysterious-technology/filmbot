@@ -2,7 +2,6 @@
 # typed: true
 
 require 'benchmark'
-require 'pry'
 require 'date'
 require 'slop'
 require_relative 'scraper/base'
@@ -83,8 +82,12 @@ puts "~ combining results ~"
 @htmls = []
 @scrapers.sort_by(&:url_name).each do |s|
   scraper_filename = "#{@city}_#{s.url_name}.html"
-  @htmls << File.read(scraper_filename)
-  `rm '#{scraper_filename}'`
+  begin
+    @htmls << File.read(scraper_filename)
+    `rm '#{scraper_filename}'`
+  rescue
+    # noop
+  end
 end
 template = File.read('city.erb')
 result = ERB.new(template).result

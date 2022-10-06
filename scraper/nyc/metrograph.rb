@@ -1,46 +1,61 @@
 # typed: true
 require_relative '../base'
 
+
 module Scraper
   class MetroGraph < Base
+    BASE_URL = "http://metrograph.com".freeze
+    # Thursday October 6
+    DATE_FORMAT = '%A %B %d'.freeze
+
+    # Mon October 6
+    DATE_FORMAT_ALT = '%a %B %d'.freeze
     def initialize
-      super('http://metrograph.com/film')
+      super(BASE_URL + '/calendar')
       @display_name = 'MetroGraph'
       @url_name = 'metrograph'
     end
 
     # everything on one page, fast
     def scrape
-      film_els = doc.css('h4.title.narrow a')
-      puts "found #{film_els.count} films"
-
+      day_elems = doc.css('div.calendar-list-day')
+      puts "found #{day_elems.count} days on the calendar"
       errors = []
-      films = film_els.map { |e|
-        link = e["href"]
-        puts "parsing #{link}"
-        title = e.text.titleize
-        selector = doc.css("a[href=\"#{link}\"]~div.text select.date")
-        # get links for first and last date, links end with date
-        dates = selector.children.map { |e|
-          e['value'].split('/').last
-        }.uniq.map { |s|
-          Date.strptime(s, "%Y-%m-%d")
-        }
-        if dates.length == 0
-          error = "No dates"
-          puts "⚠️ #{error}"
-          errors << Film.new(title, link, dates, blurb, error)
+      films_by_id = {}
+      day_elems.each { |e|
+        day_text = e.css('.date').text
+        if day_text.strip.empty?
           next
         end
-        puts "found #{dates.length} dates"
-
-        # get blurb
-        blurb = doc.css("a[href=\"#{link}\"]~div.text div.summary").text.strip!
-
-        Film.new(title, link, dates, blurb, nil)
-      }.compact
+        puts "parsing #{day_text}"
+        begin
+          date = Date.strptime(day_text, DATE_FORMAT)
+        rescue ArgumentError
+          date = Date.strptime(day_text, DATE_FORMAT_ALT)
+        end
+        e.css('.group .items .item').each { |item|
+          t = item.css('a.title').first
+          title = t.text.titleize
+          link = t["href"]
+          if films_by_id[link]
+            films_by_id[link].dates << date
+          else
+            films_by_id[link] = Film.new(title, link, [date], "", nil)
+          end
+        }
+      }
+      # get blurbs
+      films_by_id.values.each { |f|
+        doc = Base.get_doc(BASE_URL + f.link)
+        dir_info = doc.css('h5').find { |t| t.text.include?("Director:") }
+        blurb = doc.css("div.movie-info p").text
+        if dir_info
+          blurb = "#{dir_info}\n#{blurb}"
+        end
+        f.blurb = blurb
+      }
       {
-        :films => films,
+        :films => films_by_id.values,
         :errors => errors,
       }
     end

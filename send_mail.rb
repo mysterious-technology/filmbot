@@ -8,8 +8,8 @@ require 'fileutils'
 
 LIST_IDS = {
   'nyc' => {
-    test: 'a03558b941',
-    real: '7f90498afb'
+    test: '2669ce7ab9',
+    real: '2669ce7ab9'
   },
   'sf' => {
     test: '09e4b7c66b',
@@ -52,7 +52,7 @@ if !for_real
   subject += ' [dry run]'
 end
 
-html = File.read('email.html')
+html = File.read("#{city}.html")
 
 if for_real
   FileUtils.cp_r('index.html', "archive/#{city}/#{timestamp}.html", remove_destination: true)

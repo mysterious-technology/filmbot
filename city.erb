@@ -36,7 +36,7 @@
 <% htmls = @htmls %>
 
 <p style="<%= font_style %>; font-size: 20px; background-color: black; color: white; text-decoration: none">
-<strong>FILMBOT <%= "#{city.upcase}" %></strong> &nbsp
+<strong style="margin-right: 12px">FILMBOT <%= "#{city.upcase}" %></strong>
 <% scrapers.sort_by(&:url_name).each do |s| %>
 ☛ <a style="<%= font_style %>; background-color: black; color: white; text-decoration: none" href=<%= "##{s.url_name}" %>><%= s.display_name %></a> &nbsp
 <% end %>
@@ -46,13 +46,13 @@
   <%= today_string %>
 </p>
 
-<%= "<pre>start: #{start_utc}</pre>" %>
+<%#= "<pre>start: #{start_utc}</pre>" %>
 
 <% htmls.each do |html| %>
 <%= "#{html}" %>
 <% end %>
 
-<%= "<pre>#{total}<pre>" %>
-<%= "<pre>end: #{end_utc}</pre>" %>
+<%#= "<pre>#{total}<pre>" %>
+<%#= "<pre>end: #{end_utc}</pre>" %>
 </body>
 </html>

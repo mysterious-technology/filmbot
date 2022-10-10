@@ -93,7 +93,7 @@ module Scraper
 
     public_class_method def self.get_doc(url)
       raise 'no url' unless url && url.length > 0
-      Nokogiri::HTML(HTTParty.get(url)) { |c| c.noblanks }
+      Nokogiri::HTML(HTTParty.get(url, timeout: 2)) { |c| c.noblanks }
     end
   end
 end

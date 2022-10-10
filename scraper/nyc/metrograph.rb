@@ -44,13 +44,17 @@ module Scraper
           end
         }
       }
-      # get blurbs
+      # get blurbs one by one - slow
       films_by_id.values.each { |f|
-        doc = Base.get_doc(BASE_URL + f.link)
-        dir_info = doc.css('h5').find { |t| t.text.include?("Director:") }
-        blurb = doc.css("div.movie-info p").text
-        if dir_info
-          blurb = "#{dir_info}\n#{blurb}"
+        begin
+          doc = Base.get_doc(BASE_URL + f.link)
+          dir_info = doc.css('h5').find { |t| t.text.include?("Director:") }
+          blurb = doc.css("div.movie-info p").text
+          if dir_info
+            blurb = "#{dir_info}\n#{blurb}"
+          end
+        rescue
+          blurb = ""
         end
         f.blurb = blurb
       }

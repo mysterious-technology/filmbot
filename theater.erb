@@ -12,9 +12,9 @@
     <tr>
       <% row.each_with_index do |film, i| %>
         <td width="50%" valign="top" style="<%= font_style %>; padding-right: <%= i % 2 == 0 ? '16px' : '0px' %>;">
-          <h3>
+          <h5>
             ★ <a style="text-underline: none" href=<%= film.link %>><%= film.title %></a>
-          </h3>
+          </h5>
           <pre style="font-weight: bold; color: black"><%= film.week_overview_tomorrow %></pre>
           <%= "<p style=\"#{font_style}\">#{film.blurb_html}</p>" %>
         </td>

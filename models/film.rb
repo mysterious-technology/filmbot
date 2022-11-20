@@ -2,8 +2,8 @@
 class Film
   attr_accessor :title, :link, :dates, :blurb, :error
   DAYS = %w(Su M T W Th F S).freeze
-  DIRECTOR_RE = /[dD]irected by (?<full_name>([A-Z][\wáéíóú]+ ?)+)/
-  DIRECTOR_RE_2 = /[dD]irector: (?<full_name>([A-Z][\wáéíóú]+ ?)+)/
+  DIRECTOR_RE = /[dD]irected by:?\s(?<full_name>([A-Z][\wáéíóú-]+ ?){1,3})/
+  DIRECTOR_RE_2 = /[dD]irector:?\s(?<full_name>([A-Z][\wáéíóú-]+ ?){1,3})/
 
   def initialize(title, link, dates, blurb, error)
     self.title = title
@@ -22,6 +22,7 @@ class Film
     unless director
       director = DIRECTOR_RE_2.match(blurb)
     end
+    puts "DIR: #{director}"
     if director && director[:full_name]
       director[:full_name]
       blurb.gsub(director[:full_name], "<strong>#{director[:full_name]}</strong>")

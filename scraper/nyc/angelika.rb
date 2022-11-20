@@ -26,7 +26,7 @@ module Scraper
         dir_el = child_doc.at_xpath("//article[contains(@aria-label, 'Director')]/p[1]")
         blurb = meta_el.text
         if dir_el&.text
-          blurb = "Directed by: #{dir_el.text}\n#{blurb}"
+          blurb = "<h5>Directed by: #{dir_el.text}.</h5>\n#{blurb}"
         end
 
         # get dates

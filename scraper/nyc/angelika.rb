@@ -22,8 +22,12 @@ module Scraper
         title = child_doc.css("div.page-title h1").first.text.titleize
 
         # get blurb
-        meta_el = child_doc.css("meta[name=description]").first
-        blurb = meta_el["content"].strip
+        meta_el = child_doc.at_xpath("//article[contains(@aria-label, 'Synopsis')]/p[1]")
+        dir_el = child_doc.at_xpath("//article[contains(@aria-label, 'Director')]/p[1]")
+        blurb = meta_el.text
+        if dir_el&.text
+          blurb = "Directed by: #{dir_el.text}\n#{blurb}"
+        end
 
         # get dates
         dates = child_doc.css("select.form-select option").map { |e|

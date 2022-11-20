@@ -22,6 +22,7 @@ module Scraper
         d.css(".film").each { |f| 
           title = f.css(".title").first.text
           link = f.css(".session-times li a").first['href']
+          next unless link
           if blurbs_by_name[title]
             blurb = blurbs_by_name[title]
           else

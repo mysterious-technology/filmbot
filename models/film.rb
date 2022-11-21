@@ -22,7 +22,6 @@ class Film
     unless director
       director = DIRECTOR_RE_2.match(blurb)
     end
-    puts "DIR: #{director}"
     if director && director[:full_name]
       director[:full_name]
       blurb.gsub(director[:full_name], "<strong>#{director[:full_name]}</strong>")

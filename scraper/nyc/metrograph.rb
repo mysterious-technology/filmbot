@@ -40,14 +40,15 @@ module Scraper
           if films_by_id[link]
             films_by_id[link].dates << date
           else
-            films_by_id[link] = Film.new(title, link, [date], "", nil)
+            full_url = (link =~ /^\//).nil? ? link : "#{BASE_URL}#{link}"
+            films_by_id[link] = Film.new(title, full_url, [date], "", nil)
           end
         }
       }
       # get blurbs one by one - slow
       films_by_id.values.each { |f|
         begin
-          doc = Base.get_doc(BASE_URL + f.link)
+          doc = Base.get_doc(f.link)
           dir_info = doc.css('h5').find { |t| t.text.include?("Director:") }
           blurb = doc.css("div.movie-info p").text
           if dir_info

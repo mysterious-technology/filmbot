@@ -2,7 +2,7 @@
 
 https://filmbot.info/
 
-![filmbot](http://benguo.info/img/filmbot.png)
+![filmbot](https://raw.githubusercontent.com/benzguo/blog/master/public/img/filmbot.png)
 
 Filmbot scrapes independent movie theater listings in a city, and generates a digest of movies playing in the next week. 
 
